@@ -3,7 +3,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { ToastContainer } from "react-toastify";
 import { Route, Routes } from "react-router-dom";
-
+import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import LoginPage from "./Pages/Auth/LoginPage";
 import LogoutPage from "./Pages/Auth/LogoutPage";
@@ -116,6 +116,7 @@ const App = () => {
 
           <Route path="*" element={<>Error 404</>} />
         </Routes>
+        <Toaster />
       </div>
     </>
   );
