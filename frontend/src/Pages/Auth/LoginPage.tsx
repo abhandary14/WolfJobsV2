@@ -116,6 +116,12 @@ const LoginPage = () => {
                   damping: 15,
                 },
               }}
+              style={{
+                background: "#FF5353",
+                borderRadius: "10px",
+                textTransform: "none",
+                fontSize: "16px",
+              }}
             >
               <div className="flex items-center justify-center flex-row gap-x-4">
                 {loading && (
