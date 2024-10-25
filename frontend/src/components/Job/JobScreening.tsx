@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useApplicationStore } from "../../store/ApplicationStore";
 import { Button } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
+import { acceptanceEmailURL, API_ROOT } from "../../api/constants";
 
 const JobScreening = (props: any) => {
   const { jobData }: { jobData: Job } = props;
@@ -12,6 +14,10 @@ const JobScreening = (props: any) => {
   const [displayList, setDisplayList] = useState<Application[]>([]);
 
   const applicationList = useApplicationStore((state) => state.applicationList);
+
+  console.log(applicationList);
+
+  console.log(jobData);
 
   useEffect(() => {
     // let displayList: Application[] = [];s
@@ -22,26 +28,71 @@ const JobScreening = (props: any) => {
     );
   }, [searchParams]);
 
-  const handleAccept = (applicationId: string) => {
-    const url = "http://localhost:8000/api/v1/users/modifyApplication";
+  const handleAccept = async (applicationId: string) => {
+    const modifyApplicationUrl = `${API_ROOT}/users/modifyApplication`;
 
     const body = {
       applicationId: applicationId,
       status: "screening",
     };
 
-    axios.post(url, body).then((res) => {
-      if (res.status == 200) {
-        toast.success("Accepted candidate");
-        location.reload();
+    try {
+      // First POST request to modify the application
+      const res = await axios.post(modifyApplicationUrl, body);
 
-        return;
+      if (res.status === 200) {
+        toast.success("Accepted candidate");
+
+        const applicationData = applicationList.find(
+          (item) => item._id === applicationId
+        );
+
+        if (!applicationData) {
+          toast.error("Application data not found");
+          return;
+        }
+
+        const emailBody = {
+          applicationId: applicationId,
+          jobid: jobData._id,
+          emailType: "acceptance",
+          applicantEmail: applicationData.applicantemail,
+          applicantName: applicationData.applicantname,
+          jobTitle: jobData.name,
+          companyName: jobData.managerAffilication,
+          contactEmail: "contact@ncsu.edu",
+        };
+
+        console.log(emailBody);
+
+        // Second POST request to send the acceptance email
+        const emailRes = await axios.post(acceptanceEmailURL, emailBody);
+
+        if (emailRes.status === 200) {
+          toast.success("Acceptance email sent");
+        } else {
+          toast.error("Failed to send acceptance email");
+        }
+      } else {
+        toast.error("Failed to accept candidate");
       }
-      toast.error("Failed to accept candidate");
-    });
+    } catch (error) {
+      // Combined error handling
+      const err = error as any;
+      if (err.response) {
+        console.error("Error Status:", err.response.status);
+        console.error("Error Data:", err.response.data);
+      } else if (err.request) {
+        console.error("No response received:", err.request);
+      } else {
+        console.error("Error setting up request:", err.message);
+      }
+      toast.error("An error occurred while processing the request");
+    }
   };
+
   const handleReject = (applicationId: string) => {
-    const url = "http://localhost:8000/api/v1/users/modifyApplication";
+    const url = `${API_ROOT}/users/modifyApplication`;
 
     const body = {
       applicationId: applicationId,
