@@ -12,6 +12,8 @@ const JobRating = (props: any) => {
 
   const applicationList = useApplicationStore((state) => state.applicationList);
 
+  console.log(applicationList);
+
   useEffect(() => {
     setDisplayList(
       applicationList.filter(
