@@ -48,6 +48,8 @@ module.exports.sendJobAcceptanceEmail = async (req, res) => {
     companyName: companyName,
     contactEmail: contactEmail,
     applicationDate: new Date().toLocaleDateString(),
+    nextSteps:
+      "Please log in to your account to complete a brief assessment quiz. This will help us move forward in the hiring process.",
   });
 
   try {

@@ -5,7 +5,11 @@ import { Button } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
-import { acceptanceEmailURL, API_ROOT } from "../../api/constants";
+import {
+  acceptanceEmailURL,
+  API_ROOT,
+  rejectionEmailURL,
+} from "../../api/constants";
 
 const JobScreening = (props: any) => {
   const { jobData }: { jobData: Job } = props;
@@ -63,12 +67,12 @@ const JobScreening = (props: any) => {
           contactEmail: "contact@ncsu.edu",
         };
 
-        console.log(emailBody);
+        // console.log(emailBody);
 
         // Second POST request to send the acceptance email
         const emailRes = await axios.post(acceptanceEmailURL, emailBody);
 
-        if (emailRes.status === 200) {
+        if (emailRes.status === 201) {
           toast.success("Acceptance email sent");
         } else {
           toast.error("Failed to send acceptance email");
@@ -91,13 +95,63 @@ const JobScreening = (props: any) => {
     }
   };
 
-  const handleReject = (applicationId: string) => {
+  const handleReject = async (applicationId: string) => {
     const url = `${API_ROOT}/users/modifyApplication`;
 
     const body = {
       applicationId: applicationId,
       status: "rejected",
     };
+
+    try {
+      const res = await axios.post(url, body);
+
+      if (res.status === 200) {
+        toast.success("Rejected candidate");
+
+        const applicationData = applicationList.find(
+          (item) => item._id === applicationId
+        );
+
+        if (!applicationData) {
+          toast.error("Application data not found");
+          return;
+        }
+
+        const emailBody = {
+          applicationId: applicationId,
+          jobid: jobData._id,
+          emailType: "rejection",
+          applicantEmail: applicationData.applicantemail,
+          applicantName: applicationData.applicantname,
+          jobTitle: jobData.name,
+          companyName: jobData.managerAffilication,
+          contactEmail: "contact@ncsu.edu",
+        };
+
+        // console.log(emailBody);
+
+        // Second POST request to send the acceptance email
+        const emailRes = await axios.post(rejectionEmailURL, emailBody);
+
+        if (emailRes.status === 201) {
+          toast.success("Rejection email sent");
+        } else {
+          toast.error("Failed to send Rejection email");
+        }
+      }
+    } catch (error) {
+      const err = error as any;
+      if (err.response) {
+        console.error("Error Status:", err.response.status);
+        console.error("Error Data:", err.response.data);
+      } else if (err.request) {
+        console.error("No response received:", err.request);
+      } else {
+        console.error("Error setting up request:", err.message);
+      }
+      toast.error("An error occurred while processing the request");
+    }
 
     axios.post(url, body).then((res) => {
       if (res.status == 200) {
