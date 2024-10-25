@@ -6,7 +6,7 @@ const port = 8000;
 
 const expressLayouts = require("express-ejs-layouts");
 
-require("dotenv").config();
+require("dotenv").config({ path: ".env" });
 
 const db = require("./config/mongoose");
 
