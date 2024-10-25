@@ -2,9 +2,8 @@ function jobApplicationAcceptedTemplate({
   applicantName,
   jobTitle,
   companyName,
-  applicationDate,
   contactEmail,
-  nextSteps,
+  applicationDate,
 }) {
   return `
       <div style="font-family: Arial, sans-serif; color: #333; padding: 20px;">
@@ -16,7 +15,7 @@ function jobApplicationAcceptedTemplate({
         <p>
           We were impressed by your skills and experience, and we believe you would be an excellent fit for our team.
         </p>
-        <p>${nextSteps}</p>
+        
         <p>
           Should you have any questions, please don't hesitate to reach out to us at <a href="mailto:${contactEmail}">${contactEmail}</a>.
         </p>
