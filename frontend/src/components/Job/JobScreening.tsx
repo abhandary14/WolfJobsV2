@@ -19,9 +19,9 @@ const JobScreening = (props: any) => {
 
   const applicationList = useApplicationStore((state) => state.applicationList);
 
-  console.log(applicationList);
+  // console.log(applicationList);
 
-  console.log(jobData);
+  // console.log(jobData);
 
   useEffect(() => {
     // let displayList: Application[] = [];s
@@ -77,6 +77,7 @@ const JobScreening = (props: any) => {
         } else {
           toast.error("Failed to send acceptance email");
         }
+        location.reload();
       } else {
         toast.error("Failed to accept candidate");
       }
@@ -139,6 +140,7 @@ const JobScreening = (props: any) => {
         } else {
           toast.error("Failed to send Rejection email");
         }
+        location.reload();
       }
     } catch (error) {
       const err = error as any;
@@ -152,16 +154,6 @@ const JobScreening = (props: any) => {
       }
       toast.error("An error occurred while processing the request");
     }
-
-    axios.post(url, body).then((res) => {
-      if (res.status == 200) {
-        toast.success("Rejected candidate");
-        location.reload();
-
-        return;
-      }
-      toast.error("Failed to reject candidate");
-    });
   };
 
   return (

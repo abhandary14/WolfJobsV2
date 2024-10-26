@@ -6,6 +6,7 @@ export const createJobURL = `${API_ROOT}/users/createjob`;
 
 export const acceptanceEmailURL = `http://localhost:8000/send/send-job-acceptance-email`;
 export const rejectionEmailURL = `http://localhost:8000/send/send-job-rejection-email`;
+export const selectionEmailURL = `http://localhost:8000/send/selection-email`;
 
 export const ToastStyle = {
   style: {
