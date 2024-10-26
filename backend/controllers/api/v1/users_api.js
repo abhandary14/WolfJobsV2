@@ -15,9 +15,9 @@ module.exports.createSession = async function (req, res) {
   try {
     let user = await User.findOne({ email: req.body.email });
     res.set("Access-Control-Allow-Origin", "*");
-    if (!user || user.password != req.body.password) {
+    if (!user) {
       return res.json(422, {
-        message: "Invalid username or password",
+        message: "Use does not exist!",
       });
     }
 
@@ -27,13 +27,13 @@ module.exports.createSession = async function (req, res) {
     );
 
     if (!compare_password) {
-      return res.json(422, {
+      return res.status(422).json({
         message: "Invalid username or password",
       });
     }
 
     res.set("Access-Control-Allow-Origin", "*");
-    return res.json(200, {
+    return res.status(200).json({
       message: "Sign In Successful, here is your token, please keep it safe",
       data: {
         token: jwt.sign(user.toJSON(), "wolfjobs", { expiresIn: "100000" }),
@@ -43,7 +43,7 @@ module.exports.createSession = async function (req, res) {
     });
   } catch (err) {
     console.log("*******", err);
-    return res.json(500, {
+    return res.status(500).json({
       message: "Internal Server Error",
     });
   }
