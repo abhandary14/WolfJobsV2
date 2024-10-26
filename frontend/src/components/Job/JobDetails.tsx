@@ -19,6 +19,8 @@ type FormValues = {
 const JobDetail = (props: any) => {
   const { jobData }: { jobData: Job } = props;
 
+  console.log(jobData);
+
   const jobType = jobData.type === "part-time" ? "Part time" : "Full time";
 
   const applicationList: Application[] = useApplicationStore(
@@ -68,6 +70,7 @@ const JobDetail = (props: any) => {
       const temp: Application | undefined = applicationList.find(
         (item) => jobData._id === item.jobid
       );
+      console.log(temp);
       setShowApply(!temp || false);
     }
   }, [jobData]);

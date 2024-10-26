@@ -1,3 +1,5 @@
+/* eslint-disable no-extra-boolean-cast */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Navigate, useLocation } from "react-router-dom";
 
 const ProtectedRoute = ({ children }: any) => {
@@ -5,7 +7,7 @@ const ProtectedRoute = ({ children }: any) => {
   // get user information
   const token: any = localStorage.getItem("token");
 
-  let location = useLocation();
+  const location = useLocation();
 
   if (!!!token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
