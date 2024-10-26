@@ -104,6 +104,14 @@ const LoginPage = () => {
                 </p>
               )}
             </div>
+            <p className="w-full text-center">
+              <Link
+                className="text-sm text-center text-red-600 hover:underline"
+                to={"/forgot-password"}
+              >
+                Forgot Password?
+              </Link>
+            </p>
 
             <motion.button
               type="submit"

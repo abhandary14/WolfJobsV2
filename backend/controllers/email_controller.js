@@ -7,6 +7,7 @@ const {
   jobApplicationRejectionTemplate,
 } = require("../emails/jobApplicationRejectionTemplate");
 const { jobSelectionTemplate } = require("../emails/jobSelectionTemplate");
+const User = require("../models/user");
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -176,4 +177,56 @@ module.exports.sendJobSelectionEmail = async (req, res) => {
     console.error("Error sending email:", error);
     res.status(500).json({ success: false, error: error.message });
   }
+};
+
+module.exports.forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  // console.log(email);
+  const user = await User.findOne({ email });
+
+  // console.log(user);
+
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User Not Found",
+    });
+  }
+
+  const resetToken = await user.getResetToken();
+  console.log(resetToken);
+
+  await user.save();
+
+  const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+  const message = `
+      <h2>Password Reset Request</h2>
+      <p>We received a request to reset your password.</p>
+      <p>Click the link below to reset your password:</p>
+      <a href="${resetUrl}">Reset Password</a>
+      <p>If you did not request a password reset, please ignore this email.</p>
+    `;
+
+  // await sendEmail(user.email, "SkillShare Reset Password", message);
+
+  try {
+    // Send the email using Nodemailer transporter
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL, // Sender address (must match SMTP user)
+      to: email, // Recipient email address
+      subject: "WolfJobs Reset Password", // Email subject
+      html: message, // Email body (HTML)
+    });
+
+    console.log("Message sent: %s", info.messageId);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: `Reset Token has been sent to ${user.email}`,
+  });
 };

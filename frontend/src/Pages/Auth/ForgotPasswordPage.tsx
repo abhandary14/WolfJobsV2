@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { motion } from "framer-motion";
+import axios from "axios";
+import { forgotPasswordURL } from "../../api/constants";
 
 type FormValues = {
   email: string;
@@ -36,13 +38,22 @@ const ForgotPasswordPage = () => {
     setLoading(true);
     setMessage(null);
     setErrorMessage(null);
-    // const result = await forgotPassword(data.email);
-    // if (result.success) {
-    //   setMessage(result.message);
-    // } else {
-    //   setErrorMessage(result.message);
-    // }
-    // setLoading(false);
+    console.log(data);
+
+    try {
+      const result = await axios.post(forgotPasswordURL, data);
+      console.log(result);
+      if (result?.data.success) {
+        setMessage(result?.data.message);
+      } else {
+        setErrorMessage(result?.data.message);
+      }
+    } catch (error) {
+      setErrorMessage("An error occurred while processing your request.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
