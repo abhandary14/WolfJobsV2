@@ -8,6 +8,8 @@ const {
 } = require("../emails/jobApplicationRejectionTemplate");
 const { jobSelectionTemplate } = require("../emails/jobSelectionTemplate");
 const User = require("../models/user");
+const crypto = require("crypto");
+var bcrypt = require("bcryptjs");
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
@@ -228,5 +230,45 @@ module.exports.forgotPassword = async (req, res) => {
   res.status(200).json({
     success: true,
     message: `Reset Token has been sent to ${user.email}`,
+  });
+};
+
+module.exports.resetPassword = async (req, res) => {
+  const token = req.body.token;
+
+  // console.log(token);
+
+  const resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+  const expire = Date.now() + 15 * 60 * 1000;
+
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: {
+      $gt: Date.now(),
+    },
+  });
+
+  if (!user) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid Token",
+    });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+  user.password = hashedPassword;
+  user.resetPasswordExpire = undefined;
+  user.resetPasswordToken = undefined;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password reset Successfully",
   });
 };

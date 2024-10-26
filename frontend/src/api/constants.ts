@@ -9,6 +9,7 @@ export const rejectionEmailURL = `http://localhost:8000/send/send-job-rejection-
 export const selectionEmailURL = `http://localhost:8000/send/selection-email`;
 
 export const forgotPasswordURL = `http://localhost:8000/send/forgot-password`;
+export const resetPasswordURL = `http://localhost:8000/send/reset-password`;
 
 export const ToastStyle = {
   style: {

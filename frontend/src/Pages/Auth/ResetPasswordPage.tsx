@@ -7,10 +7,17 @@ import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { resetPasswordURL } from "../../api/constants";
 
 type FormValues = {
   newPassword: string;
   confirmPassword: string;
+};
+
+type ResetPasswordParams = {
+  token: string;
 };
 
 const schema = yup.object({
@@ -26,7 +33,7 @@ const schema = yup.object({
 
 const ResetPasswordPage = () => {
   const { token } = useParams<{ token: string }>();
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const {
     register,
@@ -53,17 +60,29 @@ const ResetPasswordPage = () => {
 
     console.log(data);
 
-    // const result = await resetPassword(data.newPassword, token);
+    if (data.newPassword !== data.confirmPassword) {
+      setErrorMessage("Passwords do not match");
+      setLoading(false);
+      toast.error("Passwords do not match");
+      return;
+    }
 
-    // if (result.success) {
-    //   setMessage(result.message);
-    //   // Optionally, redirect to login after a delay
-    //   setTimeout(() => {
-    //     navigate("/login");
-    //   }, 3000); // Redirect after 3 seconds
-    // } else {
-    //   setErrorMessage(result.message);
-    // }
+    const result = await axios.post(resetPasswordURL, {
+      password: data.newPassword,
+      token: token,
+    });
+
+    if (result.data.success) {
+      setMessage(result.data.message);
+
+      toast.success("Password reset successfully. Redirecting to login...");
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000); // Redirect after 3 seconds
+    } else {
+      toast.error(result.data.message);
+      setErrorMessage(result.data.message);
+    }
 
     setLoading(false);
   };
