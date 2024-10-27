@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from "axios";
 import { useUserStore } from "../../store/UserStore";
 import { useForm } from "react-hook-form";
@@ -164,7 +165,8 @@ const JobDetail = (props: any) => {
                 {jobData.location}
               </div>
               <div>
-                <span className="font-semibold text-lg">Required Skills:</span>&nbsp;
+                <span className="font-semibold text-lg">Required Skills:</span>
+                &nbsp;
                 {jobData.requiredSkills}
               </div>
               <div>

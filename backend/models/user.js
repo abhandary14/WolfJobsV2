@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema(
   {
@@ -56,18 +57,39 @@ const userSchema = new mongoose.Schema(
     },
     resume: {
       type: String,
-      default: ""
+      default: "",
     },
     resumeId: {
       type: mongoose.Schema.Types.ObjectId,
       required: false,
-      ref: 'Resume',
+      ref: "Resume",
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows multiple documents without this field
+    },
+    avatar: {
+      type: String,
+      default: "",
     },
   },
   {
     timestamps: true,
   }
 );
+
+userSchema.methods.getResetToken = async function () {
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+  this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+
+  return resetToken;
+};
 
 const User = mongoose.model("User", userSchema);
 
