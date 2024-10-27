@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../../deprecateded/auth";
 import { useForm } from "react-hook-form";
@@ -14,6 +15,8 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { motion } from "framer-motion";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 
 type FormValues = {
   name: string;
@@ -57,6 +60,54 @@ const RegistrationPage = () => {
       navigate
     );
     setLoading(false);
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setLoading(true);
+      const { credential } = credentialResponse;
+      if (credential) {
+        // Ensure the audience matches
+
+        // Send the credential (ID token) to the backend
+        const res = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/google-login`,
+          {
+            // Replace with your backend URL
+            token: credential,
+          }
+        );
+
+        if (res.data.success) {
+          // Store the JWT token (consider using HttpOnly cookies for better security)
+          localStorage.setItem("token", res.data.data.token);
+          // Redirect or perform other actions
+          navigate("/dashboard"); // Replace with your desired route
+        } else {
+          // Handle login failure
+          alert(res.data.message);
+        }
+      }
+    } catch (error: any) {
+      console.error("Google Login Error:", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        alert(`Google Login Failed: ${error.response.data.message}`);
+      } else {
+        alert("Google Login Failed");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Google Login Failure
+  const handleGoogleFailure = (error: any) => {
+    console.error("Google Login Failed:", error);
+    alert("Google Login Failed");
   };
 
   return (
@@ -237,11 +288,19 @@ const RegistrationPage = () => {
               </motion.div>
             </Stack>
           </form>
+          <div className="flex justify-center mb-4 mt-4">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => handleGoogleFailure}
+              useOneTap
+            />
+          </div>
           <div className="mt-6 border-t relative">
             <span className="absolute top-[-12px] left-1/2 transform -translate-x-1/2 bg-white px-3 text-gray-500">
               OR
             </span>
           </div>
+
           <p className="text-center mt-6">
             Already have an account?
             <Link className="text-red-600 ml-1" to={"/login"}>
