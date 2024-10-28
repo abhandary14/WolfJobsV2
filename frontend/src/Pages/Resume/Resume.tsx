@@ -7,13 +7,14 @@ import { toast } from "react-hot-toast";
 const Resume: React.FC = () => {
   // State to store the uploaded file
   const [file, setFile] = useState<File | null>(null);
-  const [atsScore, setAtsScore] = useState(null);
+  const [atsScore, setAtsScore] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
  
   // The current resume data
   const resumeName = useUserStore((state) => state.resume);
   const userId = useUserStore((state) => state.id);
   const updateResume = useUserStore((state) => state.updateResume);
-  const updateResumeId = useUserStore((state) => state.updateResumeId)
+  const updateResumeId = useUserStore((state) => state.updateResumeId);
 
   const handleSubmit = async () => {
     if (file) {
@@ -44,26 +45,29 @@ const Resume: React.FC = () => {
   };
 
   const handleATSChecker = async () => {
+    setIsLoading(true);
     try {
-
       console.log(userId);
-
       const response = await axios.post("http://localhost:8000/resume/parseResume", { userId: userId });
-
-      console.log(response.data)
-
-
+      console.log(response.data);
 
       if (response.data.success) {
-        setAtsScore(response.data.ats_score)
-        toast.success("PDF parsed successfully!!!")
+        setAtsScore(response.data.ats_score);
+        toast.success("PDF parsed successfully!!!");
       }
-
     } catch (error) {
-      console.log(error)
-      toast.error("Error Parsing PDF")
+      console.log(error);
+      toast.error("Error Parsing PDF");
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 300) return "text-green-600";
+    if (score >= 200) return "text-yellow-600";
+    return "text-red-600";
+  };
 
   return (
     <>
@@ -85,7 +89,7 @@ const Resume: React.FC = () => {
             <>
               <div className="mt-4">
                 <p>Current Resume: {resumeName}</p>
-                <div className="flex space-x-4"> {/* Flex container with horizontal spacing */}
+                <div className="flex space-x-4">
                   <a
                     href={`/resumeviewer/${userId}`}
                     target="_blank"
@@ -96,20 +100,32 @@ const Resume: React.FC = () => {
                   </a>
                   <button
                     onClick={handleATSChecker}
-                    className="inline-block px-4 py-2 font-bold text-white bg-red-500 rounded"
+                    disabled={isLoading}
+                    className="inline-block px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-blue-600 transition duration-300 disabled:opacity-50"
                   >
-                    Check ATS Score
+                    {isLoading ? "Checking..." : "Check ATS Score"}
                   </button>
                 </div>
               </div>
             </>
           )}
-          {atsScore && (
-            <>
-              {atsScore}
-            </>
+          {atsScore !== null && (
+            <div className="mt-4 p-4 bg-gray-100 rounded-lg">
+              <h3 className="text-xl font-semibold mb-2">ATS Score</h3>
+              <div className="flex items-center">
+                <span className={`text-4xl font-bold ${getScoreColor(atsScore)}`}>
+                  {atsScore}
+                </span>
+                <span className="text-2xl font-medium ml-2">/400</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                <div
+                  className={`h-2.5 rounded-full ${getScoreColor(atsScore)}`}
+                  style={{ width: `${(atsScore / 400) * 100}%` }}
+                ></div>
+              </div>
+            </div>
           )}
-
         </div>
       </div>
     </>
