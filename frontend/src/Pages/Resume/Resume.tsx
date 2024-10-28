@@ -7,7 +7,8 @@ import { toast } from "react-hot-toast";
 const Resume: React.FC = () => {
   // State to store the uploaded file
   const [file, setFile] = useState<File | null>(null);
-
+  const [atsScore, setAtsScore] = useState(null);
+ 
   // The current resume data
   const resumeName = useUserStore((state) => state.resume);
   const userId = useUserStore((state) => state.id);
@@ -51,7 +52,10 @@ const Resume: React.FC = () => {
 
       console.log(response.data)
 
+
+
       if (response.data.success) {
+        setAtsScore(response.data.ats_score)
         toast.success("PDF parsed successfully!!!")
       }
 
@@ -100,6 +104,12 @@ const Resume: React.FC = () => {
               </div>
             </>
           )}
+          {atsScore && (
+            <>
+              {atsScore}
+            </>
+          )}
+
         </div>
       </div>
     </>

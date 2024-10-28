@@ -5,8 +5,74 @@ const pdfParse = require('pdf-parse');
 
 const multer = require('multer');
 
+const { GoogleGenerativeAI } = require("@google/generative-ai")
 
-const INPUT_PROMPT = ``;
+require("dotenv").config()
+
+const GenAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+
+const model = GenAI.getGenerativeModel({ model: "gemini-pro" });
+
+
+const INPUT_PROMPT = `
+  You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the provided resume using the following rubrics:
+
+  1. General (80 points):
+    a. Impact (60 points):
+    - Assess the presence of essential sections (Work Experience, Education)
+    - Check for non-essential sections (Summary, Skills, Languages, Volunteer Experience, Awards and Honors)
+    - Evaluate the use of keywords and skills
+    - Consider the resume's conciseness (ideally 1-2 pages)
+
+    b. Target (20 points):
+    - Evaluate the conciseness and professionalism of the writing
+    - Assess the use of potent keywords and skills
+    - Consider how well experiences are incorporated to show fit for the job
+
+  2. Formatting (70 points):
+    a. Format (20 points):
+    - Check margins, indentation, font type, and font size
+
+    b. Words (40 points):
+    - Assess the professional tone and readability
+    - Check for repeated words and grammatical errors
+
+    c. Presence (10 points):
+    - Evaluate the use of quantifiable results in bullet points
+    - Check for action verbs at the beginning of bullet points
+    - Assess the inclusion of technical skills
+
+  3. Content (250 points):
+    a. Work Experience (100 points):
+    - Evaluate the relevance and quality of work experience
+
+    b. Education (50 points):
+    - Assess academic achievements and relevance of education
+
+    c. Key Competencies (100 points):
+    - Evaluate leadership experience (college or high school clubs)
+    - Assess specific technical skills mentioned in the job description
+    - Consider any "Preferred Experience" mentioned in the job description
+
+  Important Considerations:
+  - Prior dining/campus operations experience is not expected from students
+  - Good academic standing is crucial
+  - Leadership experience is highly valued
+
+  Evaluation Process:
+  1. Assess each section according to the rubrics
+  2. Calculate the total ATS score out of 400 points
+  3. Identify keywords missing from the resume
+
+  Output Format:
+  Provide the final ATS score in pure JSON format as follows, I only want this JSON response as a output:
+
+  {
+    "ats_score": [Insert total score here]
+  }
+
+  Note: Be objective and thorough in your assessment.
+`;
 
 
 const upload = multer({
@@ -29,7 +95,7 @@ module.exports.parseResume = async (req, res) => {
       return res.status(201).json({
         success: false,
         message: "User does not exist."
-      })
+      });
     }
 
     const resumeId = user.resumeId;
@@ -42,16 +108,46 @@ module.exports.parseResume = async (req, res) => {
     }
 
     // Parse the PDF buffer data to extract text
-    const data = await pdfParse(resume.fileData);
-    const text = data.text
+    try {
+      const data = await pdfParse(resume.fileData);
+      const text = data.text;
 
-    ats_score = model.get_response()
+      const prompt = `${INPUT_PROMPT}\nResume: ${text}`;
 
-    // Send the extracted text as JSON response
-    res.status(200).send({ success: true, text: ats_score });
+      const generationResult = await model.generateContent(prompt);
+      const response = await generationResult.response;
+      const responseText = response.text();
+      console.log("type", typeof(responseText))
+      
+      console.log("Raw response:", responseText);
+      console.log(JSON.parse(responseText) || "Not solved")
+
+      let ats_score;
+      try {
+        ats_score = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Error parsing JSON:", parseError);
+        return res.status(500).send({ error: 'Failed to parse AI response', details: responseText });
+      }
+
+      if (!ats_score || typeof ats_score.ats_score !== 'number') {
+        console.error("Invalid ATS score format:", ats_score);
+        return res.status(500).send({ error: 'Invalid ATS score format', details: ats_score });
+      }
+
+      // Update the resume document with the ATS score
+      resume.atsScore = ats_score.ats_score;
+      await resume.save();
+
+      console.log("ATS Score:", ats_score.ats_score);
+      res.status(200).send({ success: true, ats_score: ats_score.ats_score });
+    } catch (error) {
+      console.error("Error processing resume:", error);
+      res.status(500).send({ error: 'An error occurred while processing the resume', details: error.message });
+    }
   } catch (error) {
     console.error("Error parsing resume:", error);
-    res.status(500).send({ error: 'Failed to parse resume' });
+    res.status(500).send({ error: 'Failed to parse resume', details: error.message });
   }
 };
 
