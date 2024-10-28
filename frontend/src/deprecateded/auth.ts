@@ -15,6 +15,8 @@ export async function login(email: string, password: string, navigate: any) {
   })
     .then((res) => res.json())
     .then((data) => {
+      console.log(data);
+
       if (data.success) {
         localStorage.setItem("token", data.data.token);
         toast.success("User Logged in Successfully");

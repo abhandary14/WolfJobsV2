@@ -43,6 +43,8 @@ module.exports.createSession = async function (req, res) {
     }
 
     res.set("Access-Control-Allow-Origin", "*");
+
+    console.log(user.toJSON());
     return res.status(200).json({
       message: "Sign In Successful, here is your token, please keep it safe",
       data: {
@@ -155,6 +157,8 @@ module.exports.getProfile = async function (req, res) {
   try {
     let user = await User.findById(req.params.id);
     res.set("Access-Control-Allow-Origin", "*");
+    console.log(user);
+
     return res.json(200, {
       message: "The User info is",
 
@@ -188,6 +192,9 @@ module.exports.editProfile = async function (req, res) {
     user.hours = req.body.hours;
     user.availability = req.body.availability;
     user.gender = req.body.gender;
+    user.unityId = req.body.unityId;
+    user.studentId = req.body.studentId;
+
     // user.dob = req.body.dob;
     check = req.body.skills;
     user.skills = check;
