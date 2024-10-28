@@ -1,8 +1,13 @@
 // controllers/resume_controller.js
 const Resume = require('../models/resume');
 const User = require('../models/user');
+const pdfParse = require('pdf-parse');
 
 const multer = require('multer');
+
+
+const INPUT_PROMPT = ``;
+
 
 const upload = multer({
   limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
@@ -13,6 +18,42 @@ const upload = multer({
     cb(undefined, true);
   }
 });
+
+module.exports.parseResume = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(201).json({
+        success: false,
+        message: "User does not exist."
+      })
+    }
+
+    const resumeId = user.resumeId;
+
+    // Fetch the resume from the database using the provided resume ID
+    const resume = await Resume.findById(resumeId);
+
+    if (!resume) {
+      return res.status(404).send({ error: 'Resume not found' });
+    }
+
+    // Parse the PDF buffer data to extract text
+    const data = await pdfParse(resume.fileData);
+    const text = data.text
+
+    ats_score = model.get_response()
+
+    // Send the extracted text as JSON response
+    res.status(200).send({ success: true, text: ats_score });
+  } catch (error) {
+    console.error("Error parsing resume:", error);
+    res.status(500).send({ error: 'Failed to parse resume' });
+  }
+};
 
 // Resume upload handler
 exports.uploadResume = async (req, res) => {

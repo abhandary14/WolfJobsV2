@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import ResumeDropzone from "../../components/Resume/ResumeDropzone";
 import { useUserStore } from "../../store/UserStore";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 const Resume: React.FC = () => {
   // State to store the uploaded file
@@ -12,7 +12,7 @@ const Resume: React.FC = () => {
   const resumeName = useUserStore((state) => state.resume);
   const userId = useUserStore((state) => state.id);
   const updateResume = useUserStore((state) => state.updateResume);
-  const updateResumeId = useUserStore((state) => state.updateResumeId) 
+  const updateResumeId = useUserStore((state) => state.updateResumeId)
 
   const handleSubmit = async () => {
     if (file) {
@@ -42,6 +42,25 @@ const Resume: React.FC = () => {
     }
   };
 
+  const handleATSChecker = async () => {
+    try {
+
+      console.log(userId);
+
+      const response = await axios.post("http://localhost:8000/resume/parseResume", { userId: userId });
+
+      console.log(response.data)
+
+      if (response.data.success) {
+        toast.success("PDF parsed successfully!!!")
+      }
+
+    } catch (error) {
+      console.log(error)
+      toast.error("Error Parsing PDF")
+    }
+  }
+
   return (
     <>
       <div className="flex flex-col items-center justify-center h-screen">
@@ -59,17 +78,27 @@ const Resume: React.FC = () => {
           </div>
 
           {resumeName && (
-            <div className="mt-4">
-              <p>Current Resume: {resumeName}</p>
-              <a
-                href={`/resumeviewer/${userId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block px-4 py-2 mt-2 font-bold text-white bg-red-500 rounded"
-              >
-                View
-              </a>
-            </div>
+            <>
+              <div className="mt-4">
+                <p>Current Resume: {resumeName}</p>
+                <div className="flex space-x-4"> {/* Flex container with horizontal spacing */}
+                  <a
+                    href={`/resumeviewer/${userId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block px-4 py-2 font-bold text-white bg-red-500 rounded"
+                  >
+                    View
+                  </a>
+                  <button
+                    onClick={handleATSChecker}
+                    className="inline-block px-4 py-2 font-bold text-white bg-red-500 rounded"
+                  >
+                    Check ATS Score
+                  </button>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>
