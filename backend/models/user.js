@@ -59,6 +59,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    unityId: {
+      type: String,
+      default: "",
+    },
+    studentId: {
+      type: String,
+      default: "",
+    },
     resumeId: {
       type: mongoose.Schema.Types.ObjectId,
       required: false,
