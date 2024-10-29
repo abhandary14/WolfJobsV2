@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // import CreateIcon from '@mui/';
 import { BiSolidPencil } from "react-icons/bi";
 import { AiOutlineClose } from "react-icons/ai";
@@ -17,6 +18,10 @@ const Profile = () => {
   const gender = useUserStore((state) => state.gender);
   const hours = useUserStore((state) => state.hours);
   const resume = useUserStore((state) => state.resume);
+  const unityId = useUserStore((state) => state.unityId);
+  const studentId = useUserStore((state) => state.studentId);
+
+  console.log(unityId, studentId);
 
   const widthCard = "700px";
 
@@ -62,6 +67,14 @@ const Profile = () => {
               <div>
                 <span className="text-lg">Email: </span>
                 <span className="text-gray-500">{email || " -- "}</span>
+              </div>
+              <div>
+                <span className="text-lg">Unity Id: </span>
+                <span className="text-gray-500">{unityId || " -- "}</span>
+              </div>
+              <div>
+                <span className="text-lg">Student Id: </span>
+                <span className="text-gray-500">{studentId || " -- "}</span>
               </div>
               <div>
                 <span className="text-lg">Role: </span>
@@ -118,6 +131,8 @@ const Profile = () => {
                 availability,
                 gender,
                 hours,
+                unityId,
+                studentId,
               }}
             />
           )}

@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../../deprecateded/auth";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import {
-  Button,
   Stack,
   TextField,
   Select,
@@ -11,7 +11,12 @@ import {
   SelectChangeEvent,
   InputLabel,
   FormControl,
+  Button,
+  CircularProgress,
 } from "@mui/material";
+import { motion } from "framer-motion";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 
 type FormValues = {
   name: string;
@@ -24,7 +29,8 @@ type FormValues = {
 const RegistrationPage = () => {
   const navigate = useNavigate();
   const [role, setRole] = useState("Applicant");
-  const [affilation, setAffiliation] = useState("nc-state-dining");
+  const [affiliation, setAffiliation] = useState("nc-state-dining");
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<FormValues>({
     defaultValues: {
@@ -39,30 +45,80 @@ const RegistrationPage = () => {
   const { register, handleSubmit, formState, watch } = form;
   const { errors } = formState;
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = async (data: FormValues) => {
     console.log("form submitted");
     console.log(data);
-    signup(
+    setLoading(true);
+    await signup(
       data.email,
       data.password,
       data.confirmPassword,
       data.name,
       role,
-      role === "Manager" ? affilation : "",
+      role === "Manager" ? affiliation : affiliation,
       data.skills,
       navigate
     );
+    setLoading(false);
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setLoading(true);
+      const { credential } = credentialResponse;
+      if (credential) {
+        // Ensure the audience matches
+
+        // Send the credential (ID token) to the backend
+        const res = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/google-login`,
+          {
+            // Replace with your backend URL
+            token: credential,
+          }
+        );
+
+        if (res.data.success) {
+          // Store the JWT token (consider using HttpOnly cookies for better security)
+          localStorage.setItem("token", res.data.data.token);
+          // Redirect or perform other actions
+          navigate("/dashboard"); // Replace with your desired route
+        } else {
+          // Handle login failure
+          alert(res.data.message);
+        }
+      }
+    } catch (error: any) {
+      console.error("Google Login Error:", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        alert(`Google Login Failed: ${error.response.data.message}`);
+      } else {
+        alert("Google Login Failed");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Google Login Failure
+  const handleGoogleFailure = (error: any) => {
+    console.error("Google Login Failed:", error);
+    alert("Google Login Failed");
   };
 
   return (
     <>
-      <div className="mx-auto bg-slate-50 content flex flex-col justify-center items-center">
-        <div className=" p-4  border rounded bg-white">
-          <div className="text-xl justify-center text-black mb-4 ">
+      <div className="bg-slate-50 flex flex-col justify-center items-center min-h-screen px-4">
+        <div className="w-full max-w-md p-6 border rounded-lg bg-white">
+          <div className="text-xl text-black mb-4 text-center">
             Create New Account
           </div>
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Stack spacing={2} width={400}>
+            <Stack spacing={2}>
               <TextField
                 label="Name"
                 type="text"
@@ -71,6 +127,7 @@ const RegistrationPage = () => {
                 })}
                 error={!!errors.name}
                 helperText={errors.name?.message}
+                fullWidth
                 sx={{
                   "& label": { paddingLeft: (theme) => theme.spacing(1) },
                   "& input": { paddingLeft: (theme) => theme.spacing(2.5) },
@@ -87,12 +144,13 @@ const RegistrationPage = () => {
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
-                    value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                    value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
                     message: "Enter a valid email",
                   },
                 })}
                 error={!!errors.email}
                 helperText={errors.email?.message}
+                fullWidth
                 sx={{
                   "& label": { paddingLeft: (theme) => theme.spacing(1) },
                   "& input": { paddingLeft: (theme) => theme.spacing(2.5) },
@@ -110,6 +168,7 @@ const RegistrationPage = () => {
                 })}
                 error={!!errors.password}
                 helperText={errors.password?.message}
+                fullWidth
                 sx={{
                   "& label": {
                     paddingLeft: (theme) => theme.spacing(1),
@@ -125,7 +184,7 @@ const RegistrationPage = () => {
                 label="Confirm password"
                 type="password"
                 {...register("confirmPassword", {
-                  required: "Password is required",
+                  required: "Confirm your password",
                   validate: (val: string) => {
                     if (watch("password") !== val) {
                       return "Passwords don't match";
@@ -134,6 +193,7 @@ const RegistrationPage = () => {
                 })}
                 error={!!errors.confirmPassword}
                 helperText={errors.confirmPassword?.message}
+                fullWidth
                 sx={{
                   "& label": {
                     paddingLeft: (theme) => theme.spacing(1),
@@ -149,10 +209,11 @@ const RegistrationPage = () => {
                 label="Skills"
                 type="text"
                 {...register("skills", {
-                  required: "Skills is required",
+                  required: "Skills are required",
                 })}
                 error={!!errors.skills}
                 helperText={errors.skills?.message}
+                fullWidth
                 sx={{
                   "& label": {
                     paddingLeft: (theme) => theme.spacing(1),
@@ -164,7 +225,7 @@ const RegistrationPage = () => {
                   },
                 }}
               />
-              <FormControl>
+              <FormControl fullWidth>
                 <InputLabel id="role-id">Role</InputLabel>
                 <Select
                   value={role}
@@ -180,13 +241,13 @@ const RegistrationPage = () => {
                 </Select>
               </FormControl>
               {role === "Manager" && (
-                <FormControl>
-                  <InputLabel id="affiliation-id">Role</InputLabel>
+                <FormControl fullWidth>
+                  <InputLabel id="affiliation-id">Affiliation</InputLabel>
                   <Select
-                    value={affilation}
+                    value={affiliation}
                     labelId="affiliation-id"
-                    label="Role"
-                    id="role"
+                    label="Affiliation"
+                    id="affiliation"
                     onChange={(e: SelectChangeEvent) => {
                       setAffiliation(e.target.value);
                     }}
@@ -203,35 +264,48 @@ const RegistrationPage = () => {
                   </Select>
                 </FormControl>
               )}
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                style={{
-                  background: "#FF5353",
-                  borderRadius: "10px",
-                  textTransform: "none",
-                  fontSize: "16px",
-                }}
-              >
-                Sign up
-              </Button>
+
+              <motion.div whileTap={{ scale: 0.95 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="error"
+                  fullWidth
+                  sx={{
+                    borderRadius: "10px",
+                    textTransform: "none",
+                    fontSize: "16px",
+                    height: "48px",
+                  }}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    "Sign Up"
+                  )}
+                </Button>
+              </motion.div>
             </Stack>
           </form>
-          <div className="mx-auto"></div>
-          <br />
-          <div className="mv-1 border-t mx-16" />
-          <div className="flex justify-center">
-            <p className="-mt-3 bg-white px-3 text-[#CCCCCC]">OR</p>
+          <div className="flex justify-center mb-4 mt-4">
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => handleGoogleFailure}
+              useOneTap
+            />
           </div>
-          <br />
-          <p
-            className="text-[#656565] text-center"
-            onClick={() => {
-              navigate("/login");
-            }}
-          >
-            Already have an Account? Login Here
+          <div className="mt-6 border-t relative">
+            <span className="absolute top-[-12px] left-1/2 transform -translate-x-1/2 bg-white px-3 text-gray-500">
+              OR
+            </span>
+          </div>
+
+          <p className="text-center mt-6">
+            Already have an account?
+            <Link className="text-red-600 ml-1" to={"/login"}>
+              Login Here
+            </Link>
           </p>
         </div>
       </div>

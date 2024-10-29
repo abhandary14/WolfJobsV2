@@ -1,4 +1,3 @@
-// export userRegistrationStore;
 import { create } from "zustand";
 
 type UserState = {
@@ -18,25 +17,29 @@ type UserState = {
   affiliation: string;
   resume: string;
   resumeId: string;
+  unityId: string;
+  studentId: string;
 };
 
 type UserAction = {
   updateName: (name: UserState["name"]) => void;
-  updateEmail: (name: UserState["email"]) => void;
-  updatePassword: (name: UserState["email"]) => void;
-  updateAddress: (name: UserState["address"]) => void;
-  updateRole: (name: UserState["role"]) => void;
-  updateDob: (name: UserState["dob"]) => void;
-  updateSkills: (name: UserState["skills"]) => void;
-  updatePhonenumber: (name: UserState["phonenumber"]) => void;
-  updateId: (name: UserState["id"]) => void;
-  updateAvailability: (name: UserState["availability"]) => void;
-  updateGender: (name: UserState["gender"]) => void;
-  updateHours: (name: UserState["hours"]) => void;
-  updateIsLoggedIn: (name: UserState["isLoggedIn"]) => void;
-  updateAffiliation: (name: UserState["affiliation"]) => void;
-  updateResume: (name: UserState["resume"]) => void;
-  updateResumeId: (name: UserState["resumeId"]) => void;
+  updateEmail: (email: UserState["email"]) => void;
+  updatePassword: (password: UserState["password"]) => void;
+  updateAddress: (address: UserState["address"]) => void;
+  updateRole: (role: UserState["role"]) => void;
+  updateDob: (dob: UserState["dob"]) => void;
+  updateSkills: (skills: UserState["skills"]) => void;
+  updatePhonenumber: (phonenumber: UserState["phonenumber"]) => void;
+  updateId: (id: UserState["id"]) => void;
+  updateAvailability: (availability: UserState["availability"]) => void;
+  updateGender: (gender: UserState["gender"]) => void;
+  updateHours: (hours: UserState["hours"]) => void;
+  updateIsLoggedIn: (isLoggedIn: UserState["isLoggedIn"]) => void;
+  updateAffiliation: (affiliation: UserState["affiliation"]) => void;
+  updateResume: (resume: UserState["resume"]) => void;
+  updateResumeId: (resumeId: UserState["resumeId"]) => void;
+  updateUnityId: (unityId: UserState["unityId"]) => void;
+  updateStudentId: (studentId: UserState["studentId"]) => void;
 };
 
 export const useUserStore = create<UserState & UserAction>()((set) => ({
@@ -56,53 +59,61 @@ export const useUserStore = create<UserState & UserAction>()((set) => ({
   isLoggedIn: false,
   resume: "",
   resumeId: "",
+  unityId: "",
+  studentId: "",
 
   updateName: (name: string) => {
-    set(() => ({ name: name }));
+    set(() => ({ name }));
   },
   updateEmail: (email: string) => {
-    set(() => ({ email: email }));
+    set(() => ({ email }));
   },
   updatePassword: (password: string) => {
-    set(() => ({ password: password }));
+    set(() => ({ password }));
   },
   updateAddress: (address: string) => {
-    set(() => ({ address: address }));
+    set(() => ({ address }));
   },
   updateRole: (role: string) => {
-    set(() => ({ role: role }));
+    set(() => ({ role }));
   },
   updateDob: (dob: string) => {
-    set(() => ({ dob: dob }));
+    set(() => ({ dob }));
   },
   updateSkills: (skills: string) => {
-    set(() => ({ skills: skills }));
+    set(() => ({ skills }));
   },
   updatePhonenumber: (phonenumber: string) => {
-    set(() => ({ phonenumber: phonenumber }));
+    set(() => ({ phonenumber }));
   },
   updateId: (id: string) => {
-    set(() => ({ id: id }));
+    set(() => ({ id }));
   },
   updateAvailability: (availability: string) => {
-    set(() => ({ availability: availability }));
+    set(() => ({ availability }));
   },
   updateGender: (gender: string) => {
-    set(() => ({ gender: gender }));
+    set(() => ({ gender }));
   },
   updateHours: (hours: string) => {
-    set(() => ({ hours: hours }));
+    set(() => ({ hours }));
   },
   updateIsLoggedIn: (isLoggedIn: boolean) => {
-    set(() => ({ isLoggedIn: isLoggedIn }));
+    set(() => ({ isLoggedIn }));
   },
   updateAffiliation: (affiliation: string) => {
-    set(() => ({ affiliation: affiliation }));
+    set(() => ({ affiliation }));
   },
   updateResume: (resume: string) => {
-    set(() => ({resume: resume}))
+    set(() => ({ resume }));
   },
   updateResumeId: (resumeId: string) => {
-    set(() => ({resumeId: resumeId}))
-  }
+    set(() => ({ resumeId }));
+  },
+  updateUnityId: (unityId: string) => {
+    set(() => ({ unityId }));
+  },
+  updateStudentId: (studentId: string) => {
+    set(() => ({ studentId }));
+  },
 }));

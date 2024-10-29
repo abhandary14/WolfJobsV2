@@ -1,6 +1,8 @@
-import { toast } from "react-toastify";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// import { toast } from "react-toastify";
 import { getFormBody } from "./apiUtils";
 import { loginURL, signupURL } from "../api/constants";
+import toast from "react-hot-toast";
 
 export async function login(email: string, password: string, navigate: any) {
   const url = loginURL;
@@ -13,8 +15,11 @@ export async function login(email: string, password: string, navigate: any) {
   })
     .then((res) => res.json())
     .then((data) => {
+      console.log(data);
+
       if (data.success) {
         localStorage.setItem("token", data.data.token);
+        toast.success("User Logged in Successfully");
         navigate("/dashboard");
         return;
       }
@@ -22,7 +27,7 @@ export async function login(email: string, password: string, navigate: any) {
     });
 }
 
-export function signup(
+export async function signup(
   email: string,
   password: string,
   confirmPassword: string,
@@ -52,6 +57,7 @@ export function signup(
     .then((data) => {
       if (data.success) {
         localStorage.setItem("token", data.data.token);
+        toast.success("User Created Successfully");
         navigate("/dashboard");
         return;
       }
