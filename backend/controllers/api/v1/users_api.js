@@ -121,6 +121,7 @@ module.exports.signUp = async function (req, res) {
           name: req.body.name,
           role: req.body.role,
           skills: req.body.skills,
+          affiliation: req.body.affiliation,
         });
 
         newUser.save(function (err, savedUser) {

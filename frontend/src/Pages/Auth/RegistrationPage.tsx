@@ -29,7 +29,7 @@ type FormValues = {
 const RegistrationPage = () => {
   const navigate = useNavigate();
   const [role, setRole] = useState("Applicant");
-  const [affilation, setAffiliation] = useState("nc-state-dining");
+  const [affiliation, setAffiliation] = useState("nc-state-dining");
   const [loading, setLoading] = useState(false);
 
   const form = useForm<FormValues>({
@@ -55,7 +55,7 @@ const RegistrationPage = () => {
       data.confirmPassword,
       data.name,
       role,
-      role === "Manager" ? affilation : "",
+      role === "Manager" ? affiliation : affiliation,
       data.skills,
       navigate
     );
@@ -244,7 +244,7 @@ const RegistrationPage = () => {
                 <FormControl fullWidth>
                   <InputLabel id="affiliation-id">Affiliation</InputLabel>
                   <Select
-                    value={affilation}
+                    value={affiliation}
                     labelId="affiliation-id"
                     label="Affiliation"
                     id="affiliation"
