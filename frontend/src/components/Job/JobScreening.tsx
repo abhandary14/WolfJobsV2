@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useApplicationStore } from "../../store/ApplicationStore";
-import { Button } from "@mui/material";
+import { Button, Card, CardContent, Typography } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
@@ -16,21 +15,18 @@ const JobScreening = (props: any) => {
   const [searchParams] = useSearchParams();
 
   const [displayList, setDisplayList] = useState<Application[]>([]);
+  const [matchPercentages, setMatchPercentages] = useState<{ [key: string]: number }>({});
+  const [loadingMatch, setLoadingMatch] = useState<{ [key: string]: boolean }>({});
 
   const applicationList = useApplicationStore((state) => state.applicationList);
 
-  // console.log(applicationList);
-
-  // console.log(jobData);
-
   useEffect(() => {
-    // let displayList: Application[] = [];s
     setDisplayList(
       applicationList.filter(
         (item) => item.jobid === jobData._id && item.status === "applied"
       )
     );
-  }, [searchParams]);
+  }, [searchParams, applicationList, jobData._id]);
 
   const handleAccept = async (applicationId: string) => {
     const modifyApplicationUrl = `${API_ROOT}/users/modifyApplication`;
@@ -41,7 +37,6 @@ const JobScreening = (props: any) => {
     };
 
     try {
-      // First POST request to modify the application
       const res = await axios.post(modifyApplicationUrl, body);
 
       if (res.status === 200) {
@@ -67,9 +62,6 @@ const JobScreening = (props: any) => {
           contactEmail: "contact@ncsu.edu",
         };
 
-        // console.log(emailBody);
-
-        // Second POST request to send the acceptance email
         const emailRes = await axios.post(acceptanceEmailURL, emailBody);
 
         if (emailRes.status === 201) {
@@ -82,7 +74,6 @@ const JobScreening = (props: any) => {
         toast.error("Failed to accept candidate");
       }
     } catch (error) {
-      // Combined error handling
       const err = error as any;
       if (err.response) {
         console.error("Error Status:", err.response.status);
@@ -130,9 +121,6 @@ const JobScreening = (props: any) => {
           contactEmail: "contact@ncsu.edu",
         };
 
-        // console.log(emailBody);
-
-        // Second POST request to send the acceptance email
         const emailRes = await axios.post(rejectionEmailURL, emailBody);
 
         if (emailRes.status === 201) {
@@ -156,6 +144,25 @@ const JobScreening = (props: any) => {
     }
   };
 
+  const handleGetMatchPercentage = async (applicantId: string) => {
+    setLoadingMatch(prev => ({ ...prev, [applicantId]: true }));
+    try {
+      const response = await axios.post("http://localhost:8000/resume/managerParseResume", { userId: applicantId });
+
+      if (response.data.success) {
+        setMatchPercentages(prev => ({ ...prev, [applicantId]: response.data.match_percentage }));
+        toast.success("Match percentage calculated successfully");
+      } else {
+        toast.error("Failed to calculate match percentage");
+      }
+    } catch (error) {
+      console.error("Error calculating match percentage:", error);
+      toast.error("An error occurred while calculating match percentage");
+    } finally {
+      setLoadingMatch(prev => ({ ...prev, [applicantId]: false }));
+    }
+  };
+
   return (
     <>
       <div className="text-xl">Screening</div>
@@ -163,9 +170,9 @@ const JobScreening = (props: any) => {
         <div className="text-base text-gray-500">List empty</div>
       )}
       {displayList?.map((item: Application) => (
-        <div className="p-1 ">
+        <div className="p-1" key={item._id}>
           <div className="p-2 mx-1 my-2 bg-white rounded-lg">
-            <div className="flex flex-row justify-between ">
+            <div className="flex flex-row justify-between">
               <div className="flex flex-col">
                 <div> Name: {item.applicantname} </div>
                 {!!item?.phonenumber && <div>Phone: {item.phonenumber} </div>}
@@ -173,13 +180,26 @@ const JobScreening = (props: any) => {
                 {!!item?.applicantSkills && (
                   <div>Skills: {item.applicantSkills}</div>
                 )}
-                <div className="flex justify-center px-2 py-1 ml-2 border border-gray-300 rounded-md">
-                  <a
-                    href={`/resumeviewer/${item.applicantid}`}
-                    className="text-red-500"
-                  >
-                    View Resume
-                  </a>
+                <div className="flex mt-2">
+                  <div className="flex justify-center px-2 py-1 mr-2 border border-gray-300 rounded-md">
+                    <a
+                      href={`/resumeviewer/${item.applicantid}`}
+                      className="text-red-500"
+                    >
+                      View Resume
+                    </a>
+                  </div>
+                  <div className="flex justify-center px-2 py-1 mr-2 border border-gray-300 rounded-md">
+                    <button
+                      onClick={() => handleGetMatchPercentage(item.applicantid)}
+                      disabled={loadingMatch[item.applicantid]}
+                      className={`text-red-500 ${loadingMatch[item.applicantid] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      {loadingMatch[item.applicantid]
+                        ? "Checking..."
+                        : "Get Match %"}
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-row">
@@ -203,6 +223,15 @@ const JobScreening = (props: any) => {
                 </Button>
               </div>
             </div>
+            {matchPercentages[item.applicantid] && (
+              <Card variant="outlined" className="mt-4">
+                <CardContent>
+                  <Typography variant="h6" component="div">
+                    Match Percentage: {matchPercentages[item.applicantid]}%.
+                  </Typography>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       ))}
