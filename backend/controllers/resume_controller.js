@@ -1,15 +1,16 @@
 // controllers/resume_controller.js
-const Resume = require('../models/resume');
-const User = require('../models/user');
-const pdfParse = require('pdf-parse');
+const Resume = require("../models/resume");
+const User = require("../models/user");
+const pdfParse = require("pdf-parse");
 
-const multer = require('multer');
+const multer = require("multer");
 
-const { GoogleGenerativeAI } = require("@google/generative-ai")
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Job = require("../models/job");
 
-require("dotenv").config()
+require("dotenv").config();
 
-const GenAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const GenAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // const model = GenAI.getGenerativeModel({ model: "gemini-pro" });
 
@@ -23,7 +24,6 @@ const model = GenAI.getGenerativeModel({
     responseMimeType: "application/json",
   },
 });
-
 
 const INPUT_PROMPT_USER = `
   You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the provided resume using the following rubrics:
@@ -85,8 +85,148 @@ const INPUT_PROMPT_USER = `
   Note: Be objective and thorough in your assessment.
 `;
 
+const upload = multer({
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(pdf)$/)) {
+      return cb(new Error("Please upload a PDF file"));
+    }
+    cb(undefined, true);
+  },
+});
 
-INPUT_PROMPT_MANAGER = `
+module.exports.parseResume = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(201).json({
+        success: false,
+        message: "User does not exist.",
+      });
+    }
+
+    const resumeId = user.resumeId;
+
+    // Fetch the resume from the database using the provided resume ID
+    const resume = await Resume.findById(resumeId);
+
+    if (!resume) {
+      return res.status(404).send({ error: "Resume not found" });
+    }
+
+    // Parse the PDF buffer data to extract text
+    try {
+      const data = await pdfParse(resume.fileData);
+      const text = data.text;
+
+      const prompt = `${INPUT_PROMPT_USER}\nResume: ${text}`;
+
+      const generationResult = await model.generateContent(prompt);
+      const response = await generationResult.response;
+      const responseText = response.text();
+      console.log("type", typeof responseText);
+
+      console.log("Raw response:", responseText);
+      console.log(JSON.parse(responseText) || "Not solved");
+
+      let ats_score;
+      try {
+        ats_score = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Error parsing JSON:", parseError);
+        return res.status(500).send({
+          error: "Failed to parse AI response",
+          details: responseText,
+        });
+      }
+
+      if (!ats_score || typeof ats_score.ats_score !== "number") {
+        console.error("Invalid ATS score format:", ats_score);
+        return res
+          .status(500)
+          .send({ error: "Invalid ATS score format", details: ats_score });
+      }
+
+      // Update the resume document with the ATS score
+      resume.atsScore = ats_score.ats_score;
+      await resume.save();
+
+      console.log("ATS Score:", ats_score.ats_score);
+      res.status(200).send({ success: true, ats_score: ats_score.ats_score });
+    } catch (error) {
+      console.error("Error processing resume:", error);
+      res.status(500).send({
+        error: "An error occurred while processing the resume",
+        details: error.message,
+      });
+    }
+  } catch (error) {
+    console.error("Error parsing resume:", error);
+    res
+      .status(500)
+      .send({ error: "Failed to parse resume", details: error.message });
+  }
+};
+
+// Resume upload handler
+exports.uploadResume = async (req, res) => {
+  // first look for a resume with the same applicantId
+  const existingResume = await Resume.findOne({
+    applicantId: req.body.id,
+  });
+
+  if (existingResume) {
+    // delete the existing resume
+    existingResume.remove();
+  }
+
+  // find the user and add the resume
+  let user = await User.findOne({ _id: req.body.id });
+
+  if (!user) {
+    return res.status(404).send({ error: "User not found" });
+  }
+
+  try {
+    const resume = new Resume({
+      applicantId: user._id, // Assuming the user is authenticated
+      fileName: req.file.originalname,
+      fileData: req.file.buffer,
+      contentType: "application/pdf",
+    });
+    await resume.save();
+
+    // update the user's resumeId
+    user.resumeId = resume._id;
+    user.resume = resume.fileName;
+    await user.save();
+
+    res.status(201).send({ message: "Resume uploaded successfully" });
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+};
+
+// Matching percentage for manager
+module.exports.managerParseResume = async (req, res) => {
+  try {
+    const { userId, jobid } = req.body;
+
+    const job = await Job.findById(jobid);
+
+    if (!job) {
+      return res.status(201).json({
+        success: false,
+        message: "Job does not exist.",
+      });
+    }
+
+    job_description = job.description;
+
+    INPUT_PROMPT_MANAGER = `
   You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the provided resume against the job description using these guidelines:
 
     1. Key Focus Areas:
@@ -107,31 +247,7 @@ INPUT_PROMPT_MANAGER = `
      Calculate the overall match percentage of the applicant by comparing their resume and the job description.
 
     Job Description:
-    Essential functions and responsibilities include but are not limited to:
-    - Prep, serve and restock food items.
-    - Carry pans and trays of food to and from work stations, stove and refrigerator in accordance with safety standards.
-    - Store food in designated areas following wrapping, dating, food safety and rotation procedures.
-    - Clean work areas (kitchen production area, customer service area, dining room, lobbies and restrooms).
-    - Wash dishes, glassware, equipment and serving utensils.
-    - Restock beverage and dining area as needed.
-    - Adhere to all recipe, production and presentation standards to ensure proper quality, serving temperatures and standard portion control while following all health, safety and sanitation guidelines.
-    - Serve customers in a friendly, efficient manner following outlined steps of service and provide excellent customer service.
-    - Resolve customer concerns and relays relevant information to supervisor.
-    - May cashier following cash handling procedures to operate micros system (touch screen cash register) and accurately process transactions through the point-of-sale.
-    - Communicate effectively with supervisors, peers, and guests.
-    - Help to maintain temperature and sanitation to ensure food safety and assist unit in maintaining a Grade A sanitation of 95% or better.
-    - Other duties as assigned.
-    
-    Essential Qualifications:
-    - Current NC State University student with a flexible schedule
-    - Willingness to handle and serve all types of food (including red meat)
-    - Ability to demonstrate excellent customer service skills
-    - Ability to work in a fast-paced environment to prep, serve and restock food items.
-    - Ability to read and follow both written and verbal instructions and recipes to efficiently and accurately assemble menu items.
-    - Ability to work with a team to serve a diverse population
-    - Elevated oral and written communication skills
-    - Must be able to lift up to 30 pounds with or without reasonable accommodation.
-    - Must attend mandatory student employee orientation and training sessions
+    ${job_description}
 
     Output Format:
     Provide the final match percentage score in pure JSON format as follows, I only want this JSON response as an output:
@@ -143,27 +259,12 @@ INPUT_PROMPT_MANAGER = `
     Note: Be objective and thorough in your assessment, considering both explicit and implicit requirements of the position.
 `;
 
-
-const upload = multer({
-  limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
-  fileFilter(req, file, cb) {
-    if (!file.originalname.match(/\.(pdf)$/)) {
-      return cb(new Error('Please upload a PDF file'));
-    }
-    cb(undefined, true);
-  }
-});
-
-module.exports.parseResume = async (req, res) => {
-  try {
-    const { userId } = req.body;
-
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(201).json({
         success: false,
-        message: "User does not exist."
+        message: "User does not exist.",
       });
     }
 
@@ -173,113 +274,7 @@ module.exports.parseResume = async (req, res) => {
     const resume = await Resume.findById(resumeId);
 
     if (!resume) {
-      return res.status(404).send({ error: 'Resume not found' });
-    }
-
-    // Parse the PDF buffer data to extract text
-    try {
-      const data = await pdfParse(resume.fileData);
-      const text = data.text;
-
-      const prompt = `${INPUT_PROMPT_USER}\nResume: ${text}`;
-
-      const generationResult = await model.generateContent(prompt);
-      const response = await generationResult.response;
-      const responseText = response.text();
-      console.log("type", typeof (responseText))
-
-      console.log("Raw response:", responseText);
-      console.log(JSON.parse(responseText) || "Not solved")
-
-      let ats_score;
-      try {
-        ats_score = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error("Error parsing JSON:", parseError);
-        return res.status(500).send({ error: 'Failed to parse AI response', details: responseText });
-      }
-
-      if (!ats_score || typeof ats_score.ats_score !== 'number') {
-        console.error("Invalid ATS score format:", ats_score);
-        return res.status(500).send({ error: 'Invalid ATS score format', details: ats_score });
-      }
-
-      // Update the resume document with the ATS score
-      resume.atsScore = ats_score.ats_score;
-      await resume.save();
-
-      console.log("ATS Score:", ats_score.ats_score);
-      res.status(200).send({ success: true, ats_score: ats_score.ats_score });
-    } catch (error) {
-      console.error("Error processing resume:", error);
-      res.status(500).send({ error: 'An error occurred while processing the resume', details: error.message });
-    }
-  } catch (error) {
-    console.error("Error parsing resume:", error);
-    res.status(500).send({ error: 'Failed to parse resume', details: error.message });
-  }
-};
-
-// Resume upload handler
-exports.uploadResume = async (req, res) => {
-  // first look for a resume with the same applicantId
-  const existingResume = await Resume.findOne({
-    applicantId: req.body.id
-  });
-
-  if (existingResume) {
-    // delete the existing resume
-    existingResume.remove();
-  }
-
-  // find the user and add the resume
-  let user = await User.findOne({ _id: req.body.id });
-
-  if (!user) {
-    return res.status(404).send({ error: 'User not found' });
-  }
-
-  try {
-    const resume = new Resume({
-      applicantId: user._id, // Assuming the user is authenticated
-      fileName: req.file.originalname,
-      fileData: req.file.buffer,
-      contentType: 'application/pdf'
-    });
-    await resume.save();
-
-    // update the user's resumeId
-    user.resumeId = resume._id;
-    user.resume = resume.fileName
-    await user.save();
-
-    res.status(201).send({ message: 'Resume uploaded successfully' });
-  } catch (error) {
-    res.status(400).send({ error: error.message });
-  }
-};
-
-// Matching percentage for manager
-module.exports.managerParseResume = async (req, res) => {
-  try {
-    const { userId } = req.body;
-
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(201).json({
-        success: false,
-        message: "User does not exist."
-      });
-    }
-
-    const resumeId = user.resumeId;
-
-    // Fetch the resume from the database using the provided resume ID
-    const resume = await Resume.findById(resumeId);
-
-    if (!resume) {
-      return res.status(404).send({ error: 'Resume not found' });
+      return res.status(404).send({ error: "Resume not found" });
     }
 
     // Parse the PDF buffer data to extract text
@@ -292,22 +287,31 @@ module.exports.managerParseResume = async (req, res) => {
       const generationResult = await model.generateContent(prompt);
       const response = await generationResult.response;
       const responseText = response.text();
-      console.log("type", typeof (responseText))
+      console.log("type", typeof responseText);
 
       console.log("Raw response:", responseText);
-      console.log(JSON.parse(responseText) || "Not solved")
+      console.log(JSON.parse(responseText) || "Not solved");
 
       let match_percentage;
       try {
         match_percentage = JSON.parse(responseText);
       } catch (parseError) {
         console.error("Error parsing JSON:", parseError);
-        return res.status(500).send({ error: 'Failed to parse AI response', details: responseText });
+        return res.status(500).send({
+          error: "Failed to parse AI response",
+          details: responseText,
+        });
       }
 
-      if (!match_percentage || typeof match_percentage.match_percentage !== 'number') {
+      if (
+        !match_percentage ||
+        typeof match_percentage.match_percentage !== "number"
+      ) {
         console.error("Invalid Match Percentage format:", match_percentage);
-        return res.status(500).send({ error: 'Invalid Match Percentage format', details: match_percentage });
+        return res.status(500).send({
+          error: "Invalid Match Percentage format",
+          details: match_percentage,
+        });
       }
 
       // Update the resume document with the ATS score
@@ -315,14 +319,22 @@ module.exports.managerParseResume = async (req, res) => {
       await resume.save();
 
       console.log("Match Percentage:", match_percentage.match_percentage);
-      res.status(200).send({ success: true, match_percentage: match_percentage.match_percentage });
+      res.status(200).send({
+        success: true,
+        match_percentage: match_percentage.match_percentage,
+      });
     } catch (error) {
       console.error("Error processing resume:", error);
-      res.status(500).send({ error: 'An error occurred while processing the resume', details: error.message });
+      res.status(500).send({
+        error: "An error occurred while processing the resume",
+        details: error.message,
+      });
     }
   } catch (error) {
     console.error("Error parsing resume:", error);
-    res.status(500).send({ error: 'Failed to parse resume', details: error.message });
+    res
+      .status(500)
+      .send({ error: "Failed to parse resume", details: error.message });
   }
 };
 
@@ -330,7 +342,7 @@ module.exports.managerParseResume = async (req, res) => {
 exports.uploadResume = async (req, res) => {
   // first look for a resume with the same applicantId
   const existingResume = await Resume.findOne({
-    applicantId: req.body.id
+    applicantId: req.body.id,
   });
 
   if (existingResume) {
@@ -342,7 +354,7 @@ exports.uploadResume = async (req, res) => {
   let user = await User.findOne({ _id: req.body.id });
 
   if (!user) {
-    return res.status(404).send({ error: 'User not found' });
+    return res.status(404).send({ error: "User not found" });
   }
 
   try {
@@ -350,16 +362,16 @@ exports.uploadResume = async (req, res) => {
       applicantId: user._id, // Assuming the user is authenticated
       fileName: req.file.originalname,
       fileData: req.file.buffer,
-      contentType: 'application/pdf'
+      contentType: "application/pdf",
     });
     await resume.save();
 
     // update the user's resumeId
     user.resumeId = resume._id;
-    user.resume = resume.fileName
+    user.resume = resume.fileName;
     await user.save();
 
-    res.status(201).send({ message: 'Resume uploaded successfully' });
+    res.status(201).send({ message: "Resume uploaded successfully" });
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
@@ -369,20 +381,20 @@ exports.getResume = async (req, res) => {
   try {
     const resume = await Resume.findOne({ applicantId: req.params.id });
     if (!resume) {
-      return res.status(404).send({ error: 'Resume not found' });
+      return res.status(404).send({ error: "Resume not found" });
     }
-    res.set('Content-Type', 'application/pdf');
-    // send file name 
-    res.set('Content-Disposition', `inline; filename=${resume.fileName}`);
+    res.set("Content-Type", "application/pdf");
+    // send file name
+    res.set("Content-Disposition", `inline; filename=${resume.fileName}`);
     res.send(resume.fileData);
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
-}
+};
 
 // Make sure to export the multer upload as well
 exports.upload = upload;
 
 exports.ping = (req, res) => {
-  res.send({ message: 'Pong' });
+  res.send({ message: "Pong" });
 };

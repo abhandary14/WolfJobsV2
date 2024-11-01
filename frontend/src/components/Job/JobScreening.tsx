@@ -15,8 +15,12 @@ const JobScreening = (props: any) => {
   const [searchParams] = useSearchParams();
 
   const [displayList, setDisplayList] = useState<Application[]>([]);
-  const [matchPercentages, setMatchPercentages] = useState<{ [key: string]: number }>({});
-  const [loadingMatch, setLoadingMatch] = useState<{ [key: string]: boolean }>({});
+  const [matchPercentages, setMatchPercentages] = useState<{
+    [key: string]: number;
+  }>({});
+  const [loadingMatch, setLoadingMatch] = useState<{ [key: string]: boolean }>(
+    {}
+  );
 
   const applicationList = useApplicationStore((state) => state.applicationList);
 
@@ -145,12 +149,18 @@ const JobScreening = (props: any) => {
   };
 
   const handleGetMatchPercentage = async (applicantId: string) => {
-    setLoadingMatch(prev => ({ ...prev, [applicantId]: true }));
+    setLoadingMatch((prev) => ({ ...prev, [applicantId]: true }));
     try {
-      const response = await axios.post("http://localhost:8000/resume/managerParseResume", { userId: applicantId });
+      const response = await axios.post(
+        "http://localhost:8000/resume/managerParseResume",
+        { userId: applicantId, jobid: jobData._id }
+      );
 
       if (response.data.success) {
-        setMatchPercentages(prev => ({ ...prev, [applicantId]: response.data.match_percentage }));
+        setMatchPercentages((prev) => ({
+          ...prev,
+          [applicantId]: response.data.match_percentage,
+        }));
         toast.success("Match percentage calculated successfully");
       } else {
         toast.error("Failed to calculate match percentage");
@@ -159,7 +169,7 @@ const JobScreening = (props: any) => {
       console.error("Error calculating match percentage:", error);
       toast.error("An error occurred while calculating match percentage");
     } finally {
-      setLoadingMatch(prev => ({ ...prev, [applicantId]: false }));
+      setLoadingMatch((prev) => ({ ...prev, [applicantId]: false }));
     }
   };
 
@@ -193,7 +203,11 @@ const JobScreening = (props: any) => {
                     <button
                       onClick={() => handleGetMatchPercentage(item.applicantid)}
                       disabled={loadingMatch[item.applicantid]}
-                      className={`text-red-500 ${loadingMatch[item.applicantid] ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`text-red-500 ${
+                        loadingMatch[item.applicantid]
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
                     >
                       {loadingMatch[item.applicantid]
                         ? "Checking..."
