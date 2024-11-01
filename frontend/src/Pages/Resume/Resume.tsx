@@ -2,20 +2,18 @@ import React, { useState } from "react";
 import axios from "axios";
 import ResumeDropzone from "../../components/Resume/ResumeDropzone";
 import { useUserStore } from "../../store/UserStore";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 
 const Resume: React.FC = () => {
   // State to store the uploaded file
   const [file, setFile] = useState<File | null>(null);
-
-  const [atsScore, setAtsScore] = useState<string | null>(null);
-
+  const [atsScore, setAtsScore] = useState<number | null>(null);
 
   // The current resume data
   const resumeName = useUserStore((state) => state.resume);
   const userId = useUserStore((state) => state.id);
   const updateResume = useUserStore((state) => state.updateResume);
-  const updateResumeId = useUserStore((state) => state.updateResumeId)
+  const updateResumeId = useUserStore((state) => state.updateResumeId);
 
   const handleSubmit = async () => {
     if (file) {
@@ -52,7 +50,7 @@ const Resume: React.FC = () => {
       console.log(response.data);
 
       if (response.data.success) {
-        setAtsScore(response.data.text);
+        setAtsScore(response.data.ats_score);
         toast.success("PDF parsed successfully!!!");
       }
     } catch (error) {
@@ -60,6 +58,12 @@ const Resume: React.FC = () => {
       toast.error("Error Parsing PDF");
     } finally {
     }
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 300) return "text-green-600";
+    if (score >= 200) return "text-yellow-600";
+    return "text-red-600";
   };
 
   return (
@@ -104,8 +108,15 @@ const Resume: React.FC = () => {
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
               <h3 className="text-xl font-semibold mb-2">ATS Score</h3>
               <div className="flex items-center">
-                {atsScore}
+                <span className={`text-4xl font-bold ${getScoreColor(atsScore)}`}>
+                  {atsScore}
+                </span>
+                <span className="text-2xl font-medium ml-2">/400</span>
               </div>
+              <div
+                className={`h-2.5 rounded-full ${getScoreColor(atsScore)}`}
+                style={{ width: `${(atsScore / 400) * 100}%` }}
+              ></div>
             </div>
           )}
         </div>
