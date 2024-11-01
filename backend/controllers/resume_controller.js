@@ -57,7 +57,10 @@ module.exports.parseResume = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(400).json({ success: false, message: "User does not exist." });
+      return res.status(201).json({
+        success: false,
+        message: "User does not exist.",
+      });
     }
 
     const resumeId = user.resumeId;
@@ -69,11 +72,45 @@ module.exports.parseResume = async (req, res) => {
       return res.status(404).send({ error: "Resume not found" });
     }
 
-    // Parsing the PDF from the database using the provided resume ID
+    // Parse the PDF buffer data to extract text
     try {
       const data = await pdfParse(resume.fileData);
       const text = data.text;
-      return res.status(200).json({ success: true, message: "PDF parsed successfully", data: text });
+
+      const prompt = `${INPUT_PROMPT_USER}\nResume: ${text}`;
+
+      const generationResult = await model.generateContent(prompt);
+      const response = await generationResult.response;
+      const responseText = response.text();
+      console.log("type", typeof responseText);
+
+      console.log("Raw response:", responseText);
+      console.log(JSON.parse(responseText) || "Not solved");
+
+      let ats_score;
+      try {
+        ats_score = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Error parsing JSON:", parseError);
+        return res.status(500).send({
+          error: "Failed to parse AI response",
+          details: responseText,
+        });
+      }
+
+      if (!ats_score || typeof ats_score.ats_score !== "number") {
+        console.error("Invalid ATS score format:", ats_score);
+        return res
+          .status(500)
+          .send({ error: "Invalid ATS score format", details: ats_score });
+      }
+
+      // Update the resume document with the ATS score
+      resume.atsScore = ats_score.ats_score;
+      await resume.save();
+
+      console.log("ATS Score:", ats_score.ats_score);
+      res.status(200).send({ success: true, ats_score: ats_score.ats_score });
     } catch (error) {
       console.error("Error processing resume:", error);
       res.status(500).send({
@@ -82,8 +119,10 @@ module.exports.parseResume = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error parsing PDF:", error);
-    res.status(500).json({ success: false, message: "Error parsing PDF", error: error.message });
+    console.error("Error parsing resume:", error);
+    res
+      .status(500)
+      .send({ error: "Failed to parse resume", details: error.message });
   }
 };
 
