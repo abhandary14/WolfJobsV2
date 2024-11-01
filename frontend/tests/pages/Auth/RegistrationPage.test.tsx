@@ -1,16 +1,28 @@
-import { render, screen } from "@testing-library/react";
+// tests/pages/Auth/RegistrationPage.test.tsx
 import React from "react";
+import { render } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import RegistrationPage from "../../../src/Pages/Auth/RegistrationPage";
-import { MemoryRouter } from "react-router";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
-describe("RegistrationPage", () => {
-  it("renders RegistrationPage", () => {
-    render(
+describe("RegistrationPage Component", () => {
+  // Set the environment variable directly in the test file
+  beforeAll(() => {
+    process.env.REACT_APP_GOOGLE_CLIENT_ID = "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";
+  });
+
+  const renderWithProviders = () => {
+    return render(
       <MemoryRouter>
-        <RegistrationPage />
+        <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+          <RegistrationPage />
+        </GoogleOAuthProvider>
       </MemoryRouter>
     );
-    // const headline = screen.getByText(/Hello/i);
-    // expect(headline).toBeInTheDocument();
+  };
+
+  test("google authentication functioning", () => {
+    const { asFragment } = renderWithProviders();
+    expect(asFragment()).toMatchSnapshot();
   });
 });

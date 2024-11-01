@@ -330,12 +330,11 @@ module.exports.index = async function (req, res) {
 
 module.exports.fetchApplication = async function (req, res) {
   let application = await Application.find({}).sort("-createdAt");
-
+  console.log(application);
   //Whenever we want to send back JSON data
   res.set("Access-Control-Allow-Origin", "*");
   return res.json(200, {
     message: "List of Applications",
-
     application: application,
   });
 };

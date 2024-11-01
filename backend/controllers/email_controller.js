@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-const resend = new Resend(process.env.RESEND_API_KEY || "");
+// const resend = new Resend(process.env.RESEND_API_KEY || "");
 
 module.exports.sendJobAcceptanceEmail = async (req, res) => {
   const {
