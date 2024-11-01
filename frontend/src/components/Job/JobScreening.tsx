@@ -13,6 +13,9 @@ const JobScreening = (props: any) => {
   const [matchPercentages, setMatchPercentages] = useState<{
     [key: string]: number;
   }>({});
+  const [loadingMatch, setLoadingMatch] = useState<{ [key: string]: boolean }>(
+    {}
+  );
 
   const applicationList = useApplicationStore((state) => state.applicationList);
 
@@ -63,6 +66,7 @@ const JobScreening = (props: any) => {
   };
 
   const handleGetMatchPercentage = async (applicantId: string) => {
+    setLoadingMatch((prev) => ({ ...prev, [applicantId]: true }));
     try {
       const response = await axios.post(
         "http://localhost:8000/resume/managerParseResume",
@@ -82,6 +86,7 @@ const JobScreening = (props: any) => {
       console.error("Error calculating match percentage:", error);
       toast.error("An error occurred while calculating match percentage");
     } finally {
+      setLoadingMatch((prev) => ({ ...prev, [applicantId]: false }));
     }
   };
 
@@ -113,8 +118,15 @@ const JobScreening = (props: any) => {
                 <div className="flex justify-center px-2 py-1 mr-2 border border-gray-300 rounded-md">
                   <button
                     onClick={() => handleGetMatchPercentage(item.applicantid)}
+                    disabled={loadingMatch[item.applicantid]}
+                    className={`text-red-500 ${loadingMatch[item.applicantid]
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                      }`}
                   >
-                    Get Match %
+                    {loadingMatch[item.applicantid]
+                      ? "Checking..."
+                      : "Get Match %"}
                   </button>
                 </div>
               </div>
