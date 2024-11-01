@@ -8,7 +8,8 @@ const Resume: React.FC = () => {
   // State to store the uploaded file
   const [file, setFile] = useState<File | null>(null);
   const [atsScore, setAtsScore] = useState<number | null>(null);
-
+  const [isLoading, setIsLoading] = useState(false);
+ 
   // The current resume data
   const resumeName = useUserStore((state) => state.resume);
   const userId = useUserStore((state) => state.id);
@@ -44,6 +45,7 @@ const Resume: React.FC = () => {
   };
 
   const handleATSChecker = async () => {
+    setIsLoading(true);
     try {
       console.log(userId);
       const response = await axios.post("http://localhost:8000/resume/parseResume", { userId: userId });
@@ -57,6 +59,7 @@ const Resume: React.FC = () => {
       console.log(error);
       toast.error("Error Parsing PDF");
     } finally {
+      setIsLoading(false);
     }
   };
 
@@ -97,8 +100,10 @@ const Resume: React.FC = () => {
                   </a>
                   <button
                     onClick={handleATSChecker}
+                    disabled={isLoading}
                     className="inline-block px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-blue-600 transition duration-300 disabled:opacity-50"
                   >
+                    {isLoading ? "Checking..." : "Check ATS Score"}
                   </button>
                 </div>
               </div>
@@ -113,10 +118,12 @@ const Resume: React.FC = () => {
                 </span>
                 <span className="text-2xl font-medium ml-2">/400</span>
               </div>
-              <div
-                className={`h-2.5 rounded-full ${getScoreColor(atsScore)}`}
-                style={{ width: `${(atsScore / 400) * 100}%` }}
-              ></div>
+              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                <div
+                  className={`h-2.5 rounded-full ${getScoreColor(atsScore)}`}
+                  style={{ width: `${(atsScore / 400) * 100}%` }}
+                ></div>
+              </div>
             </div>
           )}
         </div>

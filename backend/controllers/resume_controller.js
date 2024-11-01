@@ -1,9 +1,9 @@
 // controllers/resume_controller.js
-const Resume = require('../models/resume');
-const User = require('../models/user');
+const Resume = require("../models/resume");
+const User = require("../models/user");
 const pdfParse = require("pdf-parse");
 
-const multer = require('multer');
+const multer = require("multer");
 
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Job = require("../models/job");
@@ -12,14 +12,10 @@ require("dotenv").config();
 
 const GenAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const model = GenAI.getGenerativeModel({
-  model: "gemini-pro", generationConfig: {
-    responseMimeType: "application/json",
-  }
-});
+const model = GenAI.getGenerativeModel({ model: "gemini-pro" });
 
-const INPUT_PROMPT_APPLICANT = `
-  You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations.
+const INPUT_PROMPT_USER = `
+  You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the candidate's resume.
 
   Important Considerations:
   - Prior dining/campus operations experience is not expected from students
@@ -43,12 +39,11 @@ const upload = multer({
   limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
   fileFilter(req, file, cb) {
     if (!file.originalname.match(/\.(pdf)$/)) {
-      return cb(new Error('Please upload a PDF file'));
+      return cb(new Error("Please upload a PDF file"));
     }
     cb(undefined, true);
-  }
+  },
 });
-
 
 module.exports.parseResume = async (req, res) => {
   try {
@@ -126,12 +121,11 @@ module.exports.parseResume = async (req, res) => {
   }
 };
 
-
 // Resume upload handler
 exports.uploadResume = async (req, res) => {
   // first look for a resume with the same applicantId
   const existingResume = await Resume.findOne({
-    applicantId: req.body.id
+    applicantId: req.body.id,
   });
 
   if (existingResume) {
@@ -143,7 +137,7 @@ exports.uploadResume = async (req, res) => {
   let user = await User.findOne({ _id: req.body.id });
 
   if (!user) {
-    return res.status(404).send({ error: 'User not found' });
+    return res.status(404).send({ error: "User not found" });
   }
 
   try {
@@ -151,16 +145,16 @@ exports.uploadResume = async (req, res) => {
       applicantId: user._id, // Assuming the user is authenticated
       fileName: req.file.originalname,
       fileData: req.file.buffer,
-      contentType: 'application/pdf'
+      contentType: "application/pdf",
     });
     await resume.save();
 
     // update the user's resumeId
     user.resumeId = resume._id;
-    user.resume = resume.fileName
+    user.resume = resume.fileName;
     await user.save();
 
-    res.status(201).send({ message: 'Resume uploaded successfully' });
+    res.status(201).send({ message: "Resume uploaded successfully" });
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
@@ -170,20 +164,20 @@ exports.getResume = async (req, res) => {
   try {
     const resume = await Resume.findOne({ applicantId: req.params.id });
     if (!resume) {
-      return res.status(404).send({ error: 'Resume not found' });
+      return res.status(404).send({ error: "Resume not found" });
     }
-    res.set('Content-Type', 'application/pdf');
-    // send file name 
-    res.set('Content-Disposition', `inline; filename=${resume.fileName}`);
+    res.set("Content-Type", "application/pdf");
+    // send file name
+    res.set("Content-Disposition", `inline; filename=${resume.fileName}`);
     res.send(resume.fileData);
   } catch (error) {
     res.status(400).send({ error: error.message });
   }
-}
+};
 
 // Make sure to export the multer upload as well
 exports.upload = upload;
 
 exports.ping = (req, res) => {
-  res.send({ message: 'Pong' });
+  res.send({ message: "Pong" });
 };
