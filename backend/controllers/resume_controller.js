@@ -12,10 +12,19 @@ require("dotenv").config();
 
 const GenAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const model = GenAI.getGenerativeModel({ model: "gemini-pro" });
+const model = GenAI.getGenerativeModel({
+  model: "gemini-1.5-pro",
+  generationConfig: {
+    temperature: 0.1,
+    topP: 0.95,
+    topK: 64,
+    maxOutputTokens: 8192,
+    responseMimeType: "application/json",
+  },
+});
 
 const INPUT_PROMPT_USER = `
-  You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the candidate's resume.
+  You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the provided resume.
 
   Important Considerations:
   - Prior dining/campus operations experience is not expected from students
