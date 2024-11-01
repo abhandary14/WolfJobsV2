@@ -24,7 +24,44 @@ const model = GenAI.getGenerativeModel({
 });
 
 const INPUT_PROMPT_USER = `
-  You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the provided resume.
+  You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the provided resume using the following rubrics:
+
+  1. General (80 points):
+    a. Impact (60 points):
+    - Assess the presence of essential sections (Work Experience, Education)
+    - Check for non-essential sections (Summary, Skills, Languages, Volunteer Experience, Awards and Honors)
+    - Evaluate the use of keywords and skills
+    - Consider the resume's conciseness (ideally 1-2 pages)
+
+    b. Target (20 points):
+    - Evaluate the conciseness and professionalism of the writing
+    - Assess the use of potent keywords and skills
+    - Consider how well experiences are incorporated to show fit for the job
+
+  2. Formatting (70 points):
+    a. Format (20 points):
+    - Check margins, indentation, font type, and font size
+
+    b. Words (40 points):
+    - Assess the professional tone and readability
+    - Check for repeated words and grammatical errors
+
+    c. Presence (10 points):
+    - Evaluate the use of quantifiable results in bullet points
+    - Check for action verbs at the beginning of bullet points
+    - Assess the inclusion of technical skills
+
+  3. Content (250 points):
+    a. Work Experience (100 points):
+    - Evaluate the relevance and quality of work experience
+
+    b. Education (50 points):
+    - Assess academic achievements and relevance of education
+
+    c. Key Competencies (100 points):
+    - Evaluate leadership experience (college or high school clubs)
+    - Assess specific technical skills mentioned in the job description
+    - Consider any "Preferred Experience" mentioned in the job description
 
   Important Considerations:
   - Prior dining/campus operations experience is not expected from students
@@ -32,7 +69,8 @@ const INPUT_PROMPT_USER = `
   - Leadership experience is highly valued
 
   Evaluation Process:
-  1. Calculate the total ATS score out of 400 points
+  1. Assess each section according to the rubrics
+  2. Calculate the total ATS score out of 400 points
 
   Output Format:
   Provide the final ATS score in pure JSON format as follows, I only want this JSON response as an output:
