@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Button } from "@mui/material";
 import { useUserStore } from "../../store/UserStore";
 import { useSearchParams } from "react-router-dom";

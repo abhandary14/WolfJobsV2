@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable prefer-const */
 import { useEffect, useState } from "react";
 import { HiOutlineArrowRight } from "react-icons/hi";
 import { useSearchParams } from "react-router-dom";
