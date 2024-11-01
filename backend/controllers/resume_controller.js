@@ -57,7 +57,7 @@ module.exports.parseResume = async (req, res) => {
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(201).json({ success: false, message: "User does not exist." });
+      return res.status(400).json({ success: false, message: "User does not exist." });
     }
 
     const resumeId = user.resumeId;
@@ -73,7 +73,7 @@ module.exports.parseResume = async (req, res) => {
     try {
       const data = await pdfParse(resume.fileData);
       const text = data.text;
-      return res.status(200).json({ success: true, message: "PDF parsed successfully", data: text })
+      return res.status(200).json({ success: true, message: "PDF parsed successfully", data: text });
     } catch (error) {
       console.error("Error processing resume:", error);
       res.status(500).send({
@@ -82,9 +82,9 @@ module.exports.parseResume = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log(res.status(500).json({ success: false, message: "Error parsing PDF", error: error }))
+    console.error("Error parsing PDF:", error);
+    res.status(500).json({ success: false, message: "Error parsing PDF", error: error.message });
   }
-
 };
 
 
