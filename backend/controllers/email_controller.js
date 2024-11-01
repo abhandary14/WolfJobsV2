@@ -129,8 +129,7 @@ module.exports.sendJobSelectionEmail = async (req, res) => {
     <ul>
       <li><strong>Start Date</strong>: ${startDate}</li>
       <li><strong>Time</strong>: Please arrive by 9:00 AM</li>
-      <li><strong>Location</strong>: ${location}</li>
-      <li><strong>Reporting To</strong>: ${reportingManager}</li>
+   
     </ul>
 
     <p><strong>Please bring the following documents:</strong></p>

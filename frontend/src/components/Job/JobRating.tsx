@@ -33,7 +33,7 @@ const JobRating = (props: any) => {
 
     const body = {
       applicationId: applicationId,
-      status: "screening",
+      status: "accepted",
     };
 
     try {
