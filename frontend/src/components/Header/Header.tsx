@@ -36,7 +36,71 @@ const Header = () => {
               <NavBar />
             </div>
 
-            
+            {/* Mobile Menu Button */}
+            <div className="sm:hidden">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                <span className="sr-only">Open main menu</span>
+                {mobileMenuOpen ? (
+                  <svg
+                    className="h-6 w-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="h-6 w-6"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {isLoggedIn && mobileMenuOpen && (
+          <div className="sm:hidden">
+            <ul className="px-2 pt-2 pb-3 space-y-1">
+              {role === "Manager" && isLoggedIn && (
+                <NavBarItem link="/dashboard" text="My Listings" />
+              )}
+              {role === "Applicant" && isLoggedIn && (
+                <NavBarItem link="/dashboard" text="My Applications" />
+              )}
+              {isLoggedIn && <NavBarItem link="/explore" text="All Jobs" />}
+              {/* Include other menu items if needed */}
+            </ul>
+
+            <NavBar />
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
