@@ -3,7 +3,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { ToastContainer } from "react-toastify";
 import { Route, Routes } from "react-router-dom";
-
+import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import LoginPage from "./Pages/Auth/LoginPage";
 import LogoutPage from "./Pages/Auth/LogoutPage";
@@ -19,6 +19,8 @@ import JobPreview from "./Pages/CreateJob/jobPreview";
 import Resume from "./Pages/Resume/Resume";
 import ResumeViewer from "./components/Resume/ResumeViewer";
 import Notifications from "./Pages/Notifications/Notifications";
+import ForgotPasswordPage from "./Pages/Auth/ForgotPasswordPage";
+import ResetPasswordPage from "./Pages/Auth/ResetPasswordPage";
 
 const App = () => {
   return (
@@ -31,6 +33,11 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/logout" element={<LogoutPage />} />
           <Route path="/register" element={<RegistrationPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route
+            path="/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
           <Route
             path="/dashboard"
             element={
@@ -80,12 +87,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/resumeviewer/:applicantId"
-            element={
-                <ResumeViewer />
-            }
-          />
+          <Route path="/resumeviewer/:applicantId" element={<ResumeViewer />} />
           <Route
             path="/resume"
             element={
@@ -121,6 +123,7 @@ const App = () => {
 
           <Route path="*" element={<>Error 404</>} />
         </Routes>
+        <Toaster />
       </div>
     </>
   );
