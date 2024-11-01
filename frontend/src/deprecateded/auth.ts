@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 import { getFormBody } from "./apiUtils";
-import { loginURL, signupURL } from "../api/constants";
+import { loginURL, signupURL, ToastStyle } from "../api/constants";
+import toast from "react-hot-toast";
 
 export async function login(email: string, password: string, navigate: any) {
   const url = loginURL;
@@ -16,6 +17,7 @@ export async function login(email: string, password: string, navigate: any) {
     .then((data) => {
       if (data.success) {
         localStorage.setItem("token", data.data.token);
+        toast.success("User Logged in Successfully");
         navigate("/dashboard");
         return;
       }
