@@ -1,8 +1,43 @@
 // controllers/resume_controller.js
 const Resume = require('../models/resume');
 const User = require('../models/user');
+const pdfParse = require("pdf-parse");
 
 const multer = require('multer');
+
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Job = require("../models/job");
+
+require("dotenv").config();
+
+const GenAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+const model = GenAI.getGenerativeModel({
+  model: "gemini-pro", generationConfig: {
+    responseMimeType: "application/json",
+  }
+});
+
+const INPUT_PROMPT_APPLICANT = `
+  You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations.
+
+  Important Considerations:
+  - Prior dining/campus operations experience is not expected from students
+  - Good academic standing is crucial
+  - Leadership experience is highly valued
+
+  Evaluation Process:
+  1. Calculate the total ATS score out of 400 points
+
+  Output Format:
+  Provide the final ATS score in pure JSON format as follows, I only want this JSON response as an output:
+
+  {
+    "ats_score": [Insert total score here]
+  }
+
+  Note: Be objective and thorough in your assessment.
+`;
 
 const upload = multer({
   limits: { fileSize: 15 * 1024 * 1024 }, // 15MB limit
@@ -13,6 +48,45 @@ const upload = multer({
     cb(undefined, true);
   }
 });
+
+
+module.exports.parseResume = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(201).json({ success: false, message: "User does not exist." });
+    }
+
+    const resumeId = user.resumeId;
+
+    // Fetch the resume from the database using the provided resume ID
+    const resume = await Resume.findById(resumeId);
+
+    if (!resume) {
+      return res.status(404).send({ error: "Resume not found" });
+    }
+
+    // Parsing the PDF from the database using the provided resume ID
+    try {
+      const data = await pdfParse(resume.fileData);
+      const text = data.text;
+      return res.status(200).json({ success: true, message: "PDF parsed successfully", data: text })
+    } catch (error) {
+      console.error("Error processing resume:", error);
+      res.status(500).send({
+        error: "An error occurred while processing the resume",
+        details: error.message,
+      });
+    }
+  } catch (error) {
+    console.log(res.status(500).json({ success: false, message: "Error parsing PDF", error: error }))
+  }
+
+};
+
 
 // Resume upload handler
 exports.uploadResume = async (req, res) => {
