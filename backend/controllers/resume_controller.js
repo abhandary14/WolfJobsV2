@@ -172,6 +172,17 @@ module.exports.managerParseResume = async (req, res) => {
   try {
     const { userId, jobid } = req.body;
 
+    const job = await Job.findById(jobid);
+
+    if (!job) {
+      return res.status(201).json({
+        success: false,
+        message: "Job does not exist.",
+      });
+    }
+
+    job_description = job.description;
+
     INPUT_PROMPT_MANAGER = `
     You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the provided resume against the job description using these guidelines:
 
@@ -193,20 +204,7 @@ module.exports.managerParseResume = async (req, res) => {
       Calculate the overall match percentage of the applicant by comparing their resume and the job description.
 
       Job Description:
-      Responsibilities:
-      Prep, serve and restock food items
-      Carry pans and trays of food to and from work stations, stove and refrigerator in accordance with safety standards
-      Store food in designated areas following wrapping, dating, food safety and rotation procedures
-      Clean work areas (kitchen production area, customer service area, dining room, lobbies and restrooms)
-      Wash dishes, glassware, equipment and serving utensils
-      Restock beverage and dining area as needed
-      Adhere to all recipe, production and presentation standards to ensure proper quality, serving temperatures and standard portion control while following all health, safety and sanitation guidelines
-      Serve customers in a friendly, efficient manner following outlined steps of service and provide excellent customer service
-      Resolve customer concerns and relays relevant information to supervisor
-      May cashier following cash handling procedures to operate micros system (touch screen cash register) and accurately process transactions through the point-of-sale
-      Communicate effectively with supervisors, peers, and guests
-      Help to maintain temperature and sanitation to ensure food safety and assist unit in maintaining a Grade A sanitation of 95% or better
-      Other duties as assigned
+      ${job_description}
 
       Output Format:
       Provide the final match percentage score in pure JSON format as follows, I only want this JSON response as an output:
@@ -216,7 +214,7 @@ module.exports.managerParseResume = async (req, res) => {
       }
 
       Note: Be objective and thorough in your assessment, considering both explicit and implicit requirements of the position.
-  `;
+    `;
 
     const user = await User.findById(userId);
 
