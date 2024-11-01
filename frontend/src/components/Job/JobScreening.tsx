@@ -10,6 +10,9 @@ const JobScreening = (props: any) => {
   const [searchParams] = useSearchParams();
 
   const [displayList, setDisplayList] = useState<Application[]>([]);
+  const [matchPercentages, setMatchPercentages] = useState<{
+    [key: string]: number;
+  }>({});
 
   const applicationList = useApplicationStore((state) => state.applicationList);
 
@@ -57,6 +60,29 @@ const JobScreening = (props: any) => {
       }
       toast.error("Failed to reject candidate");
     });
+  };
+
+  const handleGetMatchPercentage = async (applicantId: string) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/resume/managerParseResume",
+        { userId: applicantId, jobid: jobData._id }
+      );
+
+      if (response.data.success) {
+        setMatchPercentages((prev) => ({
+          ...prev,
+          [applicantId]: response.data.match_percentage,
+        }));
+        toast.success("Match percentage calculated successfully");
+      } else {
+        toast.error("Failed to calculate match percentage");
+      }
+    } catch (error) {
+      console.error("Error calculating match percentage:", error);
+      toast.error("An error occurred while calculating match percentage");
+    } finally {
+    }
   };
 
   return (
