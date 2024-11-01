@@ -110,6 +110,13 @@ const JobScreening = (props: any) => {
                     View Resume
                   </a>
                 </div>
+                <div className="flex justify-center px-2 py-1 mr-2 border border-gray-300 rounded-md">
+                  <button
+                    onClick={() => handleGetMatchPercentage(item.applicantid)}
+                  >
+                    Get Match %
+                  </button>
+                </div>
               </div>
               <div className="flex flex-row">
                 <Button
