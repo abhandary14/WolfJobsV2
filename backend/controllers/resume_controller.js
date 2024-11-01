@@ -168,6 +168,133 @@ module.exports.parseResume = async (req, res) => {
   }
 };
 
+module.exports.managerParseResume = async (req, res) => {
+  try {
+    const { userId, jobid } = req.body;
+
+    const job = await Job.findById(jobid);
+
+    if (!job) {
+      return res.status(201).json({
+        success: false,
+        message: "Job does not exist.",
+      });
+    }
+
+    job_description = job.description;
+
+    INPUT_PROMPT_MANAGER = `
+    You are an ATS (Applicant Tracking System) scanner specializing in university dining and campus enterprise operations. Evaluate the provided resume against the job description using these guidelines:
+
+      1. Key Focus Areas:
+      - Academic achievements
+      - Leadership experience (college or high school clubs)
+      - Specific technical skills mentioned in the job description
+
+      2. Important Considerations:
+      - Prior dining/campus operations experience is not expected from students
+      - Good academic standing is crucial
+      - Leadership experience is highly valued
+
+      3. Specific Requirements:
+      - Check for any "Preferred Experience" mentioned in the job description
+      - If the candidate lacks these skills, reduce their match score accordingly
+
+      4. Evaluation Process:
+      Calculate the overall match percentage of the applicant by comparing their resume and the job description.
+
+      Job Description:
+      ${job_description}
+
+      Output Format:
+      Provide the final match percentage score in pure JSON format as follows, I only want this JSON response as an output:
+
+      {
+        "match_percentage": [Insert match percentage here]
+      }
+
+      Note: Be objective and thorough in your assessment, considering both explicit and implicit requirements of the position.
+    `;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(201).json({
+        success: false,
+        message: "User does not exist.",
+      });
+    }
+
+    const resumeId = user.resumeId;
+
+    // Fetch the resume from the database using the provided resume ID
+    const resume = await Resume.findById(resumeId);
+
+    if (!resume) {
+      return res.status(404).send({ error: "Resume not found" });
+    }
+
+    // Parse the PDF buffer data to extract text
+    try {
+      const data = await pdfParse(resume.fileData);
+      const text = data.text;
+
+      const prompt = `${INPUT_PROMPT_MANAGER}\nResume: ${text}`;
+
+      const generationResult = await model.generateContent(prompt);
+      const response = await generationResult.response;
+      const responseText = response.text();
+      console.log("type", typeof responseText);
+
+      console.log("Raw response:", responseText);
+      console.log(JSON.parse(responseText) || "Not solved");
+
+      let match_percentage;
+      try {
+        match_percentage = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Error parsing JSON:", parseError);
+        return res.status(500).send({
+          error: "Failed to parse AI response",
+          details: responseText,
+        });
+      }
+
+      if (
+        !match_percentage ||
+        typeof match_percentage.match_percentage !== "number"
+      ) {
+        console.error("Invalid Match Percentage format:", match_percentage);
+        return res.status(500).send({
+          error: "Invalid Match Percentage format",
+          details: match_percentage,
+        });
+      }
+
+      // Update the resume document with the ATS score
+      resume.match_percentage = match_percentage.match_percentage;
+      await resume.save();
+
+      console.log("Match Percentage:", match_percentage.match_percentage);
+      res.status(200).send({
+        success: true,
+        match_percentage: match_percentage.match_percentage,
+      });
+    } catch (error) {
+      console.error("Error processing resume:", error);
+      res.status(500).send({
+        error: "An error occurred while processing the resume",
+        details: error.message,
+      });
+    }
+  } catch (error) {
+    console.error("Error parsing resume:", error);
+    res
+      .status(500)
+      .send({ error: "Failed to parse resume", details: error.message });
+  }
+};
+
 // Resume upload handler
 exports.uploadResume = async (req, res) => {
   // first look for a resume with the same applicantId
