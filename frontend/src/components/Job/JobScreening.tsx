@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useApplicationStore } from "../../store/ApplicationStore";
-import { Button } from "@mui/material";
+import { Button, Card, CardContent, Typography } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
@@ -139,6 +139,15 @@ const JobScreening = (props: any) => {
                 </Button>
               </div>
             </div>
+            {matchPercentages[item.applicantid] && (
+              <Card variant="outlined" className="mt-4">
+                <CardContent>
+                  <Typography variant="h6" component="div">
+                    Match Percentage: {matchPercentages[item.applicantid]}%.
+                  </Typography>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       ))}
