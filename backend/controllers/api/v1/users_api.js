@@ -166,6 +166,8 @@ module.exports.editProfile = async function (req, res) {
     user.availability = req.body.availability;
     user.gender = req.body.gender;
     // user.dob = req.body.dob;
+    user.unityId = req.body.unityId;
+    user.studentId = req.body.studentId;
     check = req.body.skills;
     user.skills = check;
     user.save();
