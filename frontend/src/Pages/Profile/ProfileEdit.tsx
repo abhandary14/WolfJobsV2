@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   Button,
   FormControl,
@@ -13,8 +14,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useUserStore } from "../../store/UserStore";
-import { useNavigate } from "react-router-dom";
-import { login } from "../../deprecateded/auth";
+// import { useNavigate } from "react-router-dom";
+// import { login } from "../../deprecateded/auth";
 
 type FormValues = {
   name: string;
@@ -27,6 +28,8 @@ type FormValues = {
   availability: string;
   gender: string;
   hours: string;
+  unityId: string;
+  studentId: string;
 };
 
 const ProfileEdit = ({ props }: { props: any }) => {
@@ -40,6 +43,8 @@ const ProfileEdit = ({ props }: { props: any }) => {
     availability,
     gender,
     hours,
+    unityId,
+    studentId,
   } = props;
 
   const form = useForm<FormValues>({
@@ -53,6 +58,8 @@ const ProfileEdit = ({ props }: { props: any }) => {
       availability: availability,
       gender: gender,
       hours: hours,
+      unityId: unityId,
+      studentId: studentId,
     },
   });
 
@@ -61,7 +68,7 @@ const ProfileEdit = ({ props }: { props: any }) => {
   const userId = useUserStore((state) => state.id);
   const password = useUserStore((state) => state.password);
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const { register, handleSubmit, formState } = form;
   const { errors } = formState;
@@ -80,6 +87,8 @@ const ProfileEdit = ({ props }: { props: any }) => {
       gender: data.gender,
       skills: data.skills,
       phonenumber: data.phonenumber,
+      unityId: data.unityId,
+      studentId: data.studentId,
     };
 
     axios.post(url, body).then((res) => {
@@ -88,7 +97,7 @@ const ProfileEdit = ({ props }: { props: any }) => {
         return;
       }
       toast.success("Saved profile");
-      login(email, password, navigate);
+      // login(email, password, navigate);
     });
   };
 
@@ -137,7 +146,7 @@ const ProfileEdit = ({ props }: { props: any }) => {
               label="Role"
               type="text"
               {...register("role", {
-                required: "Email is required",
+                required: "Role is required",
               })}
               error={!!errors.role}
               helperText={errors.role?.message}
@@ -151,6 +160,41 @@ const ProfileEdit = ({ props }: { props: any }) => {
               }}
               disabled
               value={role}
+            />
+            <TextField
+              label="Unity Id"
+              type="text"
+              {...register("unityId", {
+                required: "UnityId is required",
+              })}
+              error={!!errors.unityId}
+              helperText={errors.unityId?.message}
+              sx={{
+                "& label": { paddingLeft: (theme) => theme.spacing(1) },
+                "& input": { paddingLeft: (theme) => theme.spacing(2.5) },
+                "& fieldset": {
+                  paddingLeft: (theme) => theme.spacing(1.5),
+                  borderRadius: "10px",
+                },
+              }}
+            />
+
+            <TextField
+              label="Student Id"
+              type="text"
+              {...register("studentId", {
+                required: "studentId is required",
+              })}
+              error={!!errors.studentId}
+              helperText={errors.studentId?.message}
+              sx={{
+                "& label": { paddingLeft: (theme) => theme.spacing(1) },
+                "& input": { paddingLeft: (theme) => theme.spacing(2.5) },
+                "& fieldset": {
+                  paddingLeft: (theme) => theme.spacing(1.5),
+                  borderRadius: "10px",
+                },
+              }}
             />
             <TextField
               label="Address"
