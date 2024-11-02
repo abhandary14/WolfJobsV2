@@ -111,6 +111,34 @@ describe("Tasks API", function () {
       });
     });
 
+    describe("POST /send/send-job-rejection-email", () => {
+      it("It should send a job rejection email", (done) => {
+        const emailBody = {
+          applicationId: "application123",
+          jobid: "job456",
+          emailType: "rejection",
+          applicantEmail: "applicant@example.com",
+          applicantName: "John Doe",
+          jobTitle: "Software Engineer",
+          companyName: "NCSU",
+          contactEmail: "contact@ncsu.edu",
+        };
+
+        chai
+          .request("http://localhost:8000")
+          .post("/send/send-job-rejection-email")
+          .send(emailBody)
+          .end((err, response) => {
+            if (err) return done(err);
+            response.should.have.status(200);
+            response.body.should.be.a("object");
+
+            console.log("Response:", response.body);
+            done();
+          });
+      });
+    });
+
     describe("POST /send/forgot-password", () => {
       it("It should initiate the forgot password process", (done) => {
         const body = {
