@@ -10,8 +10,8 @@ router.get("/", homeController.home);
 router.use("/users", require("./users"));
 
 router.use("/api", require("./api"));
-router.use("/send", require("./send"));
-router.use("/auth", require("./auth"));
+// router.use("/send", require("./send"));
+// router.use("/auth", require("./auth"));
 router.use("/resume", require("./resume"));
 
 module.exports = router;
