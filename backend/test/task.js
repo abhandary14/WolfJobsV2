@@ -122,7 +122,7 @@ describe("Tasks API", function () {
           pay: "10",
           schedule: "10/10/10",
         };
-  
+
         chai
           .request("http://localhost:8000")
           .post("/api/v1/users/createjob")
@@ -137,9 +137,9 @@ describe("Tasks API", function () {
           })
           .end((err, response) => {
             response.body.should.be.a("object");
-  
+
             console.log("*********", response.body);
-  
+
             done();
           });
       });
@@ -275,6 +275,39 @@ describe("Tasks API", function () {
               done();
             });
         });
+      });
+    });
+    describe("POST /send/selection-email", () => {
+      it("It should send a job Selection email", (done) => {
+        const emailBody = {
+          applicationId: "application123",
+          jobid: "job456",
+          emailType: "acceptance",
+          applicantEmail: "applicant@example.com",
+          applicantName: "John Doe",
+          jobTitle: "Software Engineer",
+          companyName: "NCSU",
+          contactEmail: "contact@ncsu.edu",
+        };
+
+        chai
+          .request("http://localhost:8000")
+          .post("/send/selection-email")
+          .send(emailBody)
+          .end((err, response) => {
+            if (err) return done(err);
+            try {
+              response.should.have.status(201);
+              //   response.body.should.be.a("object");
+              //   response.body.should.have
+              //     .property("message")
+              //     .eql("Job selection email sent.");
+              console.log("Response:", response.body);
+              done();
+            } catch (error) {
+              done(error);
+            }
+          });
       });
     });
   });
