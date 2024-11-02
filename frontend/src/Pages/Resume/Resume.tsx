@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState } from "react";
 import axios from "axios";
 import ResumeDropzone from "../../components/Resume/ResumeDropzone";
@@ -9,7 +10,7 @@ const Resume: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
   const [atsScore, setAtsScore] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
- 
+
   // The current resume data
   const resumeName = useUserStore((state) => state.resume);
   const userId = useUserStore((state) => state.id);
@@ -35,7 +36,9 @@ const Resume: React.FC = () => {
 
         if (response.status === 201) {
           console.log("Resume uploaded successfully");
-          toast.success("Resume Uploaded Successfully. Sign out and sign back in to see changes!");
+          toast.success(
+            "Resume Uploaded Successfully. Sign out and sign back in to see changes!"
+          );
         }
       } catch (error) {
         console.error("Error uploading the resume", error);
@@ -48,7 +51,10 @@ const Resume: React.FC = () => {
     setIsLoading(true);
     try {
       console.log(userId);
-      const response = await axios.post("http://localhost:8000/resume/parseResume", { userId: userId });
+      const response = await axios.post(
+        "http://localhost:8000/resume/parseResume",
+        { userId: userId }
+      );
       console.log(response.data);
 
       if (response.data.success) {
@@ -113,7 +119,9 @@ const Resume: React.FC = () => {
             <div className="mt-4 p-4 bg-gray-100 rounded-lg">
               <h3 className="text-xl font-semibold mb-2">ATS Score</h3>
               <div className="flex items-center">
-                <span className={`text-4xl font-bold ${getScoreColor(atsScore)}`}>
+                <span
+                  className={`text-4xl font-bold ${getScoreColor(atsScore)}`}
+                >
                   {atsScore}
                 </span>
                 <span className="text-2xl font-medium ml-2">/400</span>
