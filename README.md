@@ -57,9 +57,9 @@ and what not?
 
 
 # Presentation Video
+[![Watch the video](https://github.com/deepr41/WolfJobs/blob/master/GIFs/Video%20Thumbnail.png)](http://www.youtube.com/watch?v=kMgLUrDiYEw)
 
-[![Watch the video](![video-thumbnail-readme](https://github.com/user-attachments/assets/3f6f7351-92a9-49ff-ae18-32050558e087)
-)]([http://www.youtube.com/watch?v=kMgLUrDiYEw](https://youtu.be/t7hGlzpx4-o))
+[![Watch the video][(https://github.com/user-attachments/assets/3f6f7351-92a9-49ff-ae18-32050558e087)](http://www.youtube.com/watch?v=kMgLUrDiYEw)
 
 ## About Us 🌟
 
