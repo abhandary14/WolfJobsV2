@@ -44,7 +44,7 @@ module.exports.createSession = async function (req, res) {
 
     res.set("Access-Control-Allow-Origin", "*");
 
-    // console.log(user.toJSON());
+    console.log(user.toJSON());
     return res.status(200).json({
       message: "Sign In Successful, here is your token, please keep it safe",
       data: {
