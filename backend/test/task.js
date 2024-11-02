@@ -61,6 +61,18 @@ describe("Tasks API", function () {
           });
         });
 
+        describe("GET /api/v1/users/", () => {
+          it("IT SHOULD RETURN ALL THE JOBS", (done) => {
+            // const task = {
+            //     email:'shaangzb@gmail.com',
+            //     password:'123',
+
+            // };
+            done();
+          });
+        });
+      });
+
       describe("GET /api/v1/users/", () => {
         it("IT SHOULD RETURN ALL THE JOBS", (done) => {
           // const task = {
