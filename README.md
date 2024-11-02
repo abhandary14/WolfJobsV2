@@ -31,18 +31,29 @@
 ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
 ![RestAPI](https://img.shields.io/badge/RestAPI-005571?style=for-the-badge&logo=restapi)
 
-# What's New:
+# What's New: 🚀
 
  - **New Screens Added!**
- - Branding, Colours and Typography
- - Components & States
- - Mutliple UI Screens _flows_ for Student & Manager Roles
- - [https://www.figma.com/file/sqt0gh5H7bZEkryKZ9jFnK/WolfJobs](https://www.figma.com/file/sqt0gh5H7bZEkryKZ9jFnK/WolfJobs)
+ - Forgot and Reset Passwords Screens
+ - Notifications Tab
+ - Exclusively Responsive Screens for all sizes
+ - Resume ATS Parser
+ - Google SignIn
+and what not?
 
- - Seamless Resume Upload and Parsing: We've made it a breeze for applicants to submit their resumes for each job posting, while employers can effortlessly access and view the stored PDFs in MongoDB.
- - Precision Application Matching: Say goodbye to the uncertainty of job applications! With our enhanced system, applicants now have the power to identify which jobs align perfectly with their skills and qualifications. WolfJobs will analyze your profile and inform you if you're a strong fit for a position.
- - Revamped Job Sorting and Search:  Our revamped job sorting and search features allows you to easily organize opportunities by pay, city, and employment type. Plus, you can perform specific job searches to find the perfect match.
-- Stay Informed with the Notifications Tab: Introduced our brand-new Notifications tab to WolfJobs. Now, you can receive timely updates on the status of your applications, ensuring you're always in the know about your job prospects. 
+### 🌟 Enhanced User Experience
+
+- **Authentication Flows & Security** 🔐: Simplify access with Google sign-in while ensuring your data is protected with encrypted passwords. Our platform includes options for forgotten credentials and seamless reset processes for smooth recovery.
+
+- **Email Notification System** 📧: Stay informed with instant email alerts! Students will receive timely updates on their application status, ensuring they're always aware of acceptance or rejection decisions.
+
+- **Resume Parsing & ATS Scoring** 📄: Our advanced ATS system intelligently parses resumes, providing a precise match score between candidates' skills and job requirements. Students can also view their ATS scores for valuable self-assessment.
+
+- **Show Resume Match % for Managers** 📊: Managers can easily identify strong candidates with a clear match percentage based on resume keywords versus job descriptions, streamlining the selection process.
+
+- **Profile Setup for Students and Managers** 📝: Create complete and verified profiles, including NCSU and student IDs, to enhance identity verification for all users.
+
+- **Comprehensive Application Management** ⚙️: Managers can efficiently screen, compare, and select candidates with all relevant tools conveniently located in one centralized platform.
 
 
 # Presentation Video
@@ -51,9 +62,15 @@
 
 # About Us
 
-Eager to dive into a side hustle or seize a full-time job opportunity? Look no further than WolfJobs. Our platform is the ultimate connector between recruiters in need of talent for both short-term and full-time roles and candidates seeking the freedom to choose. Dive in, earn your share, and opt out whenever you want – or stay on for a longer journey!
+## About Us 🌟
 
-At the heart of our bustling campus, WolfJobs stands out as the top student employment portal. Whether you're on the hunt for a short-term tech project, a part-time shift at a campus dining hall, or a full-time position that offers stability and growth, WolfJobs has a spot just for you.
+Eager to dive into a side hustle or seize a full-time job opportunity? Look no further than **WolfJobs**! We are a dedicated group of students from NCSU, driven by a shared vision of transforming the job application process into a seamless and empowering experience for our peers. Our platform is the ultimate connector between recruiters in need of talent for both short-term and full-time roles and candidates seeking the freedom to choose.
+
+At the heart of our bustling campus, WolfJobs stands out as the top student employment portal. Whether you're on the hunt for a short-term tech project, a part-time shift at a campus dining hall, or a full-time position that offers stability and growth, WolfJobs has a spot just for you. We understand the challenges that come with finding the right job opportunities amidst a sea of applications, and our mission is to make the job search not only efficient but also enjoyable.
+
+With innovative features like resume parsing, ATS scoring, and instant email notifications, we empower students with valuable insights into their applications, helping them put their best foot forward. Our team has poured countless hours into research, development, and testing, ensuring that the platform not only meets the needs of students but also exceeds expectations.
+
+Dive in, earn your share, and opt out whenever you want—or stay on for a longer journey! Join us on this exciting adventure as we redefine the job search experience, one application at a time. Together, let’s unlock new opportunities and pave the way for future success!
 
 # Why WolfJobs?
 
@@ -155,17 +172,17 @@ Your app is ready to be deployed!
 
 # Future Improvements✨
 
-**Persistent Sessions: 🔄** Improved state management to maintain user sessions and prevent loss upon page refresh.
+- **Persistent Sessions: 🔄** Improved state management to maintain user sessions and prevent loss upon page refresh.
 
-**Targeted Notifications: 📬** Customized updates to provide applicants with personalized information regarding their application status. 
+- **Targeted Notifications: 📬** Customized updates to provide applicants with personalized information regarding their application status. 
 
-**Expanded Application Flexibility: 🎯** Allow multiple applications for a single job posting, giving students greater flexibility in their job search. 
+- **Expanded Application Flexibility: 🎯** Allow multiple applications for a single job posting, giving students greater flexibility in their job search. 
 
-**Dynamic Questionnaires: ❓** Implement job-specific questions designed to better evaluate applicant suitability for various roles. 
+- **Dynamic Questionnaires: ❓** Implement job-specific questions designed to better evaluate applicant suitability for various roles. 
 
-**Additional Document Uploads: 📄** Enable students to submit cover letters and schedules along with their resumes for a more comprehensive application. 
+- **Additional Document Uploads: 📄** Enable students to submit cover letters and schedules along with their resumes for a more comprehensive application. 
 
-**Resume Keyword Insights: 🔍** Provide feedback on missing keywords in resumes to help applicants enhance their ATS scores and improve their chances of selection. 
+- **Resume Keyword Insights: 🔍** Provide feedback on missing keywords in resumes to help applicants enhance their ATS scores and improve their chances of selection. 
 
 
 # Contributors
