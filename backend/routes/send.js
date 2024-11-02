@@ -4,6 +4,7 @@ const {
   sendJobRejectionEmail,
   sendJobSelectionEmail,
   resetPassword,
+  forgotPassword,
 } = require("../controllers/email_controller");
 
 const router = express.Router();
