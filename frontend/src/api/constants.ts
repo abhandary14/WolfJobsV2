@@ -8,6 +8,9 @@ export const acceptanceEmailURL = `http://localhost:8000/send/send-job-acceptanc
 export const rejectionEmailURL = `http://localhost:8000/send/send-job-rejection-email`;
 export const selectionEmailURL = `http://localhost:8000/send/selection-email`;
 
+export const forgotPasswordURL = `http://localhost:8000/send/forgot-password`;
+export const resetPasswordURL = `http://localhost:8000/send/reset-password`;
+
 export const ToastStyle = {
   style: {
     borderRadius: "10px",
