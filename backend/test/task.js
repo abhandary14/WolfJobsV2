@@ -111,6 +111,32 @@ describe("Tasks API", function () {
       });
     });
 
+    describe("GET /api/v1/users/search", () => {
+      it("IT SHOULD RETURN THE SEARCHED JOB", (done) => {
+        const body = {
+          name: "Shaan",
+          managerid: "1234556",
+          skills: "C,java",
+          location: "Noida",
+          description: "xyz",
+          pay: "10",
+          schedule: "10/10/10",
+        };
+
+        chai
+          .request("http://localhost:8000")
+          .get("/api/v1/users/search/TA")
+          // .send(body)
+          .end((err, response) => {
+            response.body.should.be.a("object");
+
+            console.log("*********", response.body.users);
+
+            done();
+          });
+      });
+    });
+
     describe("POST /api/v1/users/create-session", () => {
       it("IT SHOULD RETURN THE USER", (done) => {
         const body = { email: "boss@gmail.com", password: "123" };
