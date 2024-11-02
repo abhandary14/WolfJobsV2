@@ -57,9 +57,7 @@ and what not?
 
 
 # Presentation Video
-[![Watch the video](https://github.com/deepr41/WolfJobs/blob/master/GIFs/Video%20Thumbnail.png)](http://www.youtube.com/watch?v=kMgLUrDiYEw)
 [![Watch the video](https://github.com/user-attachments/assets/6ed0ece5-7635-410c-bfa9-c8fe4e863622)](https://www.youtube.com/watch?v=t7hGlzpx4-o)
-
 
 ## About Us 🌟
 
@@ -87,9 +85,13 @@ At WolfJobs, it’s not just about work – it's about joining a vibrant pack wh
 
 ## Applicant Side
 
-### Signup & Login
+### Authentication
 
-![Signup & Login](https://github.com/deepr41/WolfJobs/blob/GIF-Update/GIFs/Student%20-%20Sign%20Up%20%26%20Login.gif)
+![Signup Page](![image](https://github.com/user-attachments/assets/5a74d1b3-9f96-4c2f-8714-8cd36f137acf))
+![Login Page](![image](https://github.com/user-attachments/assets/4e482a91-b755-44e4-beab-9095bfa7bb2f))
+![Reset Password](![image](https://github.com/user-attachments/assets/caf1c2d4-4e8e-4a16-9306-20f49c4c6adb))
+![Register Page](![image](https://github.com/user-attachments/assets/d5ec32d2-04f6-4213-b6eb-4297eb671a7c))
+![Reset Email](![WhatsApp Image 2024-11-01 at 22 24 17_01f3bb0e](https://github.com/user-attachments/assets/c416b219-e20a-41e7-911d-ee505b44eff9))
 
 ### Student Applies for Job
 
@@ -119,6 +121,14 @@ At WolfJobs, it’s not just about work – it's about joining a vibrant pack wh
 ### Review & Accept Applications
 ![Review Applications](https://github.com/deepr41/WolfJobs/blob/GIF-Update/GIFs/Manager%20-%20Grade%2C%20Review%20%26%20Accept%20Candidates.gif)
 
+### Check ATS Score
+![ATS Score by Applicant](![image](https://github.com/user-attachments/assets/c4a8c535-446a-486b-9872-df72e731af52))
+
+### Email Notification
+![Recieved Email Notification](![WhatsApp Image 2024-11-01 at 22 24 27_07bfdb11](https://github.com/user-attachments/assets/1ae4593b-90ee-403d-adae-e8ce0ccb16ef))
+
+### Profile Match Percentage for Managers
+![Match Percent](![image](https://github.com/user-attachments/assets/04953a09-f53b-4e1b-8e42-c7cd562e4521))
 
 # Installation Instructions for Project Setup
 
@@ -206,8 +216,6 @@ Your app is ready to be deployed!
     <td align="center"><a href="https://github.com/Harris-A-Khan"><img src="https://avatars.githubusercontent.com/Harris-A-Khan" width="100px;" alt=""/><br /><b>Harris Khan </b></a><br /></td>
     <td align="center"><a href="https://github.com/Sarvesh-Somasundaram"><img src="https://avatars.githubusercontent.com/Sarvesh-Somasundaram" width="100px;" alt=""/><br /><b>Sarvesh Somasundaram</b></a><br /></td>
 
-
-   
   </tr>
   </table>
   
