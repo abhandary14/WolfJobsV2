@@ -1,0 +1,30 @@
+name: Run Backend Tests
+
+on:
+  push:
+    branches:
+      - master-fall24-g73
+  pull_request:
+    branches:
+      - master-fall24-g73
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16" # Replace with your backend's Node.js version
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm test
