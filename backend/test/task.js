@@ -27,9 +27,39 @@ describe("Tasks API", function () {
       //     password:'123',
 
       // };
+      describe("Tasks API", function () {
+        this.timeout(10000);
 
+        before(function (done) {
+          if (mongoose.connection.readyState === 1) {
+            done();
+          } else {
+            mongoose.connection.once("open", done);
+            mongoose.connection.on("error", done);
+          }
+        });
 
+        describe("GET /api/v1/users/fetchapplications", () => {
+          it("IT SHOULD RETURN ALL THE APPLICATIONS", (done) => {
+            // const task = {
+            //     email:'shaangzb@gmail.com',
+            //     password:'123',
 
+            // };
+
+            chai
+              .request("http://localhost:8000")
+              .get("/api/v1/users/fetchapplications")
+
+              .end((err, response) => {
+                response.body.should.be.a("object");
+
+                console.log("*********", response.body);
+
+                done();
+              });
+          });
+        });
 
       describe("GET /api/v1/users/", () => {
         it("IT SHOULD RETURN ALL THE JOBS", (done) => {
