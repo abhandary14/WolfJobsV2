@@ -18,7 +18,7 @@
 [![DOI](https://zenodo.org/badge/429097663.svg)](https://zenodo.org/badge/latestdoi/429097663)
 [![Release](https://img.shields.io/github/v/release/deepr41/wolfjobs)](https://gitHub.com/deepr41/Wolfjobs)
 [![codecov](https://codecov.io/gh/deepr41/WolfJobs/graph/badge.svg?token=RH472ZM4PT)](https://codecov.io/gh/deepr41/WolfJobs)
-vaishvi-dev
+
 <!-- ![Static Badge](https://img.shields.io/badge/any_text-i_like-blue) -->
 
 # Tech Stack:
@@ -30,11 +30,6 @@ vaishvi-dev
 ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB)
 ![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
 ![RestAPI](https://img.shields.io/badge/RestAPI-005571?style=for-the-badge&logo=restapi)
-
-# What's New in V2:
-
- - Added a lot of new stuff 
-
 
 # What's New:
 
@@ -202,4 +197,13 @@ Your app is ready to be deployed!
 
    
   </tr>
+## Iteration 2:
+ <table>
+  <tr>
+    <td align="center"><a href="https://github.com/Priyanshu9898"><img src="https://avatars.githubusercontent.com/Priyanshu9898" width="100px;" alt=""/><br /><b>Priyanshu Malaviya</b></a></td>
+    <td align="center"><a href="https://github.com/VaishviShah"><img src="https://avatars.githubusercontent.com/VaishviShah" width="100px;" alt=""/><br /><b>Vaishvi Shah</b></a><br /></td>
+    <td align="center"><a href="https://github.com/abhandary14"><img src="https://avatars.githubusercontent.com/abhandary14" width="100px;" alt=""/><br /><b>Aakash Bhandary</b></a><br /></td></td>
+   
+  </tr>
+  
 </table>
