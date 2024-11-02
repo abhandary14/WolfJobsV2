@@ -26,15 +26,5 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run Tests and Save Output
-        run: npm test > test-output.txt
-
-      - name: Install GitHub CLI
-        run: sudo apt-get install -y gh
-
-      - name: Create Gist with Test Results
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh auth login --with-token <<< "$GITHUB_TOKEN"
-          gh gist create test-output.txt --public --desc "Frontend Test Results"
+      - name: Run Tests
+        run: npm test
