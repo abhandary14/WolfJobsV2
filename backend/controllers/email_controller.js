@@ -106,3 +106,73 @@ module.exports.sendJobRejectionEmail = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+module.exports.sendJobSelectionEmail = async (req, res) => {
+  const { applicantEmail, applicantName, jobTitle, companyName, contactEmail } =
+    req.body;
+
+  const today = new Date();
+  const startDateObj = new Date();
+  startDateObj.setDate(today.getDate() + 7);
+
+  // Format the date as desired (e.g., 'November 1, 2024')
+  const options = { year: "numeric", month: "long", day: "numeric" };
+  const startDate = startDateObj.toLocaleDateString("en-US", options);
+
+  // Define the onboarding details with the dynamic start date
+  const onboardingDetails = `
+    <p>We're excited to have you on board! Here are the next steps to get you started:</p>
+
+    <ul>
+      <li><strong>Start Date</strong>: ${startDate}</li>
+      <li><strong>Time</strong>: Please arrive by 9:00 AM</li>
+   
+    </ul>
+
+    <p><strong>Please bring the following documents:</strong></p>
+
+    <ul>
+      <li>A valid government-issued photo ID</li>
+      <li>Completed tax and employment eligibility forms (attached to this email)</li>
+      <li>Direct deposit information</li>
+    </ul>
+
+    <p><strong>Orientation Schedule:</strong></p>
+
+    <p>On your first day, you'll attend a brief orientation session to introduce you to our company culture, policies, and your new team.</p>
+
+    <p>If you have any questions before your start date, feel free to reach out to our HR department at ${contactEmail}.</p>
+
+    <p>We look forward to working with you!</p>
+  `;
+  // Generate the email HTML content
+  const emailHtml = jobSelectionTemplate({
+    applicantName: applicantName,
+    jobTitle: jobTitle,
+    companyName: companyName,
+    contactEmail: contactEmail,
+    onboardingDetails: onboardingDetails,
+  });
+
+  try {
+    // Send the email using Nodemailer transporter
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL, // Sender address (must match SMTP user)
+      to: applicantEmail, // Recipient email address
+      subject: `Congratulations! You're hired for ${jobTitle}`, // Email subject
+      html: emailHtml, // Email body (HTML)
+    });
+
+    console.log("Message sent: %s", info.messageId);
+
+    res.status(201).json({
+      success: true,
+      message: "Job selection email sent.",
+      data: info,
+      messageId: info.messageId,
+    });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
