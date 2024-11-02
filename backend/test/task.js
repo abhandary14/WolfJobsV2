@@ -111,6 +111,31 @@ describe("Tasks API", function () {
       });
     });
 
+    describe("POST /api/v1/users/create-session", () => {
+      it("IT SHOULD RETURN THE USER", (done) => {
+        const body = { email: "boss@gmail.com", password: "123" };
+        chai
+          .request("http://localhost:8000")
+          .post("/api/v1/users/create-session")
+          .send(body)
+
+          .end((err, response) => {
+            response.body.should.be.a("object");
+
+            console.log("*********", response.body);
+
+            done();
+          });
+      });
+    });
+
+    // export const acceptanceEmailURL = http://localhost:8000/send/send-job-acceptance-email;
+    // export const rejectionEmailURL = http://localhost:8000/send/send-job-rejection-email;
+    // export const selectionEmailURL = http://localhost:8000/send/selection-email;
+
+    // export const forgotPasswordURL = http://localhost:8000/send/forgot-password;
+    // export const resetPasswordURL = http://localhost:8000/send/reset-password;
+
     describe("POST /send/send-job-acceptance-email", () => {
       it("It should send a job acceptance email", (done) => {
         const emailBody = {
