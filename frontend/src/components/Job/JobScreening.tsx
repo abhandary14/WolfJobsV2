@@ -92,6 +92,63 @@ const JobScreening = (props: any) => {
     }
   };
 
+  const handleReject = async (applicationId: string) => {
+    const url = `${API_ROOT}/users/modifyApplication`;
+
+    const body = {
+      applicationId: applicationId,
+      status: "rejected",
+    };
+
+    try {
+      const res = await axios.post(url, body);
+
+      if (res.status === 200) {
+        toast.success("Rejected candidate");
+
+        const applicationData = applicationList.find(
+          (item) => item._id === applicationId
+        );
+
+        if (!applicationData) {
+          toast.error("Application data not found");
+          return;
+        }
+
+        const emailBody = {
+          applicationId: applicationId,
+          jobid: jobData._id,
+          emailType: "rejection",
+          applicantEmail: applicationData.applicantemail,
+          applicantName: applicationData.applicantname,
+          jobTitle: jobData.name,
+          companyName: jobData.managerAffilication,
+          contactEmail: "contact@ncsu.edu",
+        };
+
+        const emailRes = await axios.post(rejectionEmailURL, emailBody);
+
+        if (emailRes.status === 201) {
+          toast.success("Rejection email sent");
+        } else {
+          toast.error("Failed to send Rejection email");
+        }
+        location.reload();
+      }
+    } catch (error) {
+      const err = error as any;
+      if (err.response) {
+        console.error("Error Status:", err.response.status);
+        console.error("Error Data:", err.response.data);
+      } else if (err.request) {
+        console.error("No response received:", err.request);
+      } else {
+        console.error("Error setting up request:", err.message);
+      }
+      toast.error("An error occurred while processing the request");
+    }
+  };
+
   const handleGetMatchPercentage = async (applicantId: string) => {
     setLoadingMatch((prev) => ({ ...prev, [applicantId]: true }));
     try {
