@@ -197,7 +197,8 @@ Your app is ready to be deployed!
 
    
   </tr>
-## Iteration 2:
+  </table>
+## Iteration 3:
  <table>
   <tr>
     <td align="center"><a href="https://github.com/Priyanshu9898"><img src="https://avatars.githubusercontent.com/Priyanshu9898" width="100px;" alt=""/><br /><b>Priyanshu Malaviya</b></a></td>
