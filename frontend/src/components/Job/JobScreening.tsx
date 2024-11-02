@@ -1,9 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useApplicationStore } from "../../store/ApplicationStore";
 import { Button, Card, CardContent, Typography } from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSearchParams } from "react-router-dom";
+import {
+  acceptanceEmailURL,
+  API_ROOT,
+  rejectionEmailURL,
+} from "../../api/constants";
 
 const JobScreening = (props: any) => {
   const { jobData }: { jobData: Job } = props;
@@ -20,49 +26,70 @@ const JobScreening = (props: any) => {
   const applicationList = useApplicationStore((state) => state.applicationList);
 
   useEffect(() => {
-    // let displayList: Application[] = [];s
     setDisplayList(
       applicationList.filter(
         (item) => item.jobid === jobData._id && item.status === "applied"
       )
     );
-  }, [searchParams]);
+  }, [searchParams, applicationList, jobData._id]);
 
-  const handleAccept = (applicationId: string) => {
-    const url = "http://localhost:8000/api/v1/users/modifyApplication";
+  const handleAccept = async (applicationId: string) => {
+    const modifyApplicationUrl = `${API_ROOT}/users/modifyApplication`;
 
     const body = {
       applicationId: applicationId,
       status: "screening",
     };
 
-    axios.post(url, body).then((res) => {
-      if (res.status == 200) {
+    try {
+      const res = await axios.post(modifyApplicationUrl, body);
+
+      if (res.status === 200) {
         toast.success("Accepted candidate");
+
+        const applicationData = applicationList.find(
+          (item) => item._id === applicationId
+        );
+
+        if (!applicationData) {
+          toast.error("Application data not found");
+          return;
+        }
+
+        const emailBody = {
+          applicationId: applicationId,
+          jobid: jobData._id,
+          emailType: "acceptance",
+          applicantEmail: applicationData.applicantemail,
+          applicantName: applicationData.applicantname,
+          jobTitle: jobData.name,
+          companyName: jobData.managerAffilication,
+          contactEmail: "contact@ncsu.edu",
+        };
+
+        const emailRes = await axios.post(acceptanceEmailURL, emailBody);
+
+        if (emailRes.status === 201) {
+          toast.success("Acceptance email sent");
+        } else {
+          toast.error("Failed to send acceptance email");
+        }
         location.reload();
-
-        return;
+      } else {
+        toast.error("Failed to accept candidate");
       }
-      toast.error("Failed to accept candidate");
-    });
-  };
-  const handleReject = (applicationId: string) => {
-    const url = "http://localhost:8000/api/v1/users/modifyApplication";
-
-    const body = {
-      applicationId: applicationId,
-      status: "rejected",
-    };
-
-    axios.post(url, body).then((res) => {
-      if (res.status == 200) {
-        toast.success("Rejected candidate");
-        location.reload();
-
-        return;
+    } catch (error) {
+      const err = error as any;
+      if (err.response) {
+        console.error("Error Status:", err.response.status);
+        console.error("Error Data:", err.response.data);
+      } else if (err.request) {
+        console.error("No response received:", err.request);
+      } else {
+        console.error("Error setting up request:", err.message);
       }
-      toast.error("Failed to reject candidate");
-    });
+      toast.error("An error occurred while processing the request");
+    }
   };
 
   const handleGetMatchPercentage = async (applicantId: string) => {
@@ -97,9 +124,9 @@ const JobScreening = (props: any) => {
         <div className="text-base text-gray-500">List empty</div>
       )}
       {displayList?.map((item: Application) => (
-        <div className="p-1 ">
+        <div className="p-1" key={item._id}>
           <div className="p-2 mx-1 my-2 bg-white rounded-lg">
-            <div className="flex flex-row justify-between ">
+            <div className="flex flex-row justify-between">
               <div className="flex flex-col">
                 <div> Name: {item.applicantname} </div>
                 {!!item?.phonenumber && <div>Phone: {item.phonenumber} </div>}
@@ -107,27 +134,30 @@ const JobScreening = (props: any) => {
                 {!!item?.applicantSkills && (
                   <div>Skills: {item.applicantSkills}</div>
                 )}
-                <div className="flex justify-center px-2 py-1 ml-2 border border-gray-300 rounded-md">
-                  <a
-                    href={`/resumeviewer/${item.applicantid}`}
-                    className="text-red-500"
-                  >
-                    View Resume
-                  </a>
-                </div>
-                <div className="flex justify-center px-2 py-1 mr-2 border border-gray-300 rounded-md">
-                  <button
-                    onClick={() => handleGetMatchPercentage(item.applicantid)}
-                    disabled={loadingMatch[item.applicantid]}
-                    className={`text-red-500 ${loadingMatch[item.applicantid]
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
+                <div className="flex mt-2">
+                  <div className="flex justify-center px-2 py-1 mr-2 border border-gray-300 rounded-md">
+                    <a
+                      href={`/resumeviewer/${item.applicantid}`}
+                      className="text-red-500"
+                    >
+                      View Resume
+                    </a>
+                  </div>
+                  <div className="flex justify-center px-2 py-1 mr-2 border border-gray-300 rounded-md">
+                    <button
+                      onClick={() => handleGetMatchPercentage(item.applicantid)}
+                      disabled={loadingMatch[item.applicantid]}
+                      className={`text-red-500 ${
+                        loadingMatch[item.applicantid]
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
-                  >
-                    {loadingMatch[item.applicantid]
-                      ? "Checking..."
-                      : "Get Match %"}
-                  </button>
+                    >
+                      {loadingMatch[item.applicantid]
+                        ? "Checking..."
+                        : "Get Match %"}
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-row">
