@@ -18,7 +18,14 @@ const passportLocal = require("./config/passport-local-strategy");
 
 const passportJWT = require("./config/passport-jwt-strategy");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Replace with your frontend URL
+    credentials: true,
+  })
+);
+
+app.use(express.json());
 
 app.use(express.urlencoded());
 
