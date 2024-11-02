@@ -111,6 +111,29 @@ describe("Tasks API", function () {
       });
     });
 
+    describe("POST /send/forgot-password", () => {
+      it("It should initiate the forgot password process", (done) => {
+        const body = {
+          email: "priyanshumalaviya9@gmail.com",
+        };
+
+        chai
+          .request("http://localhost:8000")
+          .post("/send/forgot-password")
+          .send(body)
+          .end(async (err, response) => {
+            if (err) return done(err);
+            response.should.have.status(200);
+            // response.body.should.be.a("object");
+            // response.body.should.have
+            //   .property("message")
+            //   .eql(`Reset Token has been sent to ${testUser.email}`);
+            console.log("Response:", response.body);
+
+            done();
+          });
+      });
+    });
 
   });
 });
