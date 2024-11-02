@@ -73,3 +73,36 @@ module.exports.sendJobAcceptanceEmail = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
+module.exports.sendJobRejectionEmail = async (req, res) => {
+  const { applicantEmail, applicantName, jobTitle, companyName, contactEmail } =
+    req.body;
+
+  // Generate the email HTML content
+  const emailHtml = jobApplicationRejectionTemplate({
+    applicantName: applicantName,
+    jobTitle: jobTitle,
+    companyName: companyName,
+    contactEmail: contactEmail,
+    applicationDate: new Date().toLocaleDateString(),
+  });
+
+  try {
+    // Send the email using Resend SDK
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL, // sender address
+      to: applicantEmail, // list of receivers
+      subject: `Update on your application for ${jobTitle}`,
+      html: emailHtml, // html body
+    });
+
+    console.log("Message sent: %s", info.messageId);
+
+    res
+      .status(200)
+      .json({ success: true, data: info, messageId: info.messageId });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
