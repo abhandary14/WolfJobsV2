@@ -72,6 +72,11 @@ const userSchema = new mongoose.Schema(
       required: false,
       ref: "Resume",
     },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // Allows multiple documents without this field
+    },
 
     avatar: {
       type: String,

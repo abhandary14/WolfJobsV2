@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Link, useNavigate } from "react-router-dom";
 import { login } from "../../deprecateded/auth";
 import { useForm } from "react-hook-form";
@@ -5,6 +6,8 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 
 type FormValues = {
   email: string;
@@ -37,6 +40,43 @@ const LoginPage = () => {
     setLoading(true);
     await login(data.email, data.password, navigate);
     setLoading(false);
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    try {
+      setLoading(true);
+      const { credential } = credentialResponse;
+      if (credential) {
+        // Send the credential to the backend
+        const res = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/auth/google-login`,
+          {
+            token: credential,
+          }
+        );
+
+        if (res.data.success) {
+          // Store the JWT token (consider using HttpOnly cookies for better security)
+          localStorage.setItem("token", res.data.data.token);
+          // Redirect or perform other actions
+          navigate("/dashboard"); // Replace with your desired route
+        } else {
+          // Handle login failure
+          alert(res.data.message);
+        }
+      }
+    } catch (error) {
+      console.error("Google Login Error:", error);
+      alert("Google Login Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Google Login Failure
+  const handleGoogleFailure = (error: any) => {
+    console.error("Google Login Failed:", error);
+    alert("Google Login Failed");
   };
 
   return (
@@ -103,6 +143,22 @@ const LoginPage = () => {
                   {errors.password.message}
                 </p>
               )}
+            </div>
+            <p className="w-full text-center">
+              <Link
+                className="text-sm text-center text-red-600 hover:underline"
+                to={"/forgot-password"}
+              >
+                Forgot Password?
+              </Link>
+            </p>
+
+            <div className="flex justify-center mb-4">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => handleGoogleFailure}
+                useOneTap
+              />
             </div>
 
             <motion.button
