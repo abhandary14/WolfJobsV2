@@ -19,7 +19,6 @@
 [![Top Language](https://img.shields.io/github/languages/top/SE-Fall24-G73/WolfJobsV2)](https://GitHub.com/SE-Fall24-G73/WolfJobsV2/)
 [![DOI](https://zenodo.org/badge/882011816.svg)](https://doi.org/10.5281/zenodo.14027435)
 [![Release](https://img.shields.io/github/v/release/SE-Fall24-G73/WolfJobsV2)](https://gitHub.com/SE-Fall24-G73/WolfJobsV2)
-[![codecov](https://codecov.io/gh/SE-Fall24-G73/WolfJobsV2/graph/badge.svg?token=RH472ZM4PT)](https://codecov.io/gh/SE-Fall24-G73/WolfJobsV2)
 
 <!-- ![Static Badge](https://img.shields.io/badge/any_text-i_like-blue) -->
 
